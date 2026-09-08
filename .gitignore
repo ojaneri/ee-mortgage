@@ -4,3 +4,6 @@ _deps/
 *.o
 *.a
 Testing/
+
+# local tooling state, not part of the project
+.omc/

@@ -1,189 +1,170 @@
 # Mortgage Testing Lab
 
-**Project #1 — Functional Testing**
-Disciplina: Sistemas Embarcados — UTFPR
-Prof. Max Mauro Dias Santos
+Project #1 — Functional Testing
+Sistemas Embarcados, UTFPR — Prof. Max Mauro Dias Santos
+Osvaldo Janeri Filho <janeri@gmail.com>
 
-A complete, runnable lab that demonstrates the five classical functional
-(black-box) testing techniques — **nominal**, **boundary value**, **robustness**,
-**worst-case** and **equivalence class** testing — on a deliberately small
-system under test: a `mortgage(gender, age, salary)` function.
+A small C++ lab for practising black-box test design: nominal, boundary value,
+robustness, worst-case and equivalence class testing. The system under test is
+one function, `mortgage(gender, age, salary)`, which is deliberately trivial —
+the interesting part is the test suite, not the code it exercises.
 
-The point of the lab is *not* the function. It is the demonstration that a test
-suite derived methodically from requirements finds defects that a suite written
-by intuition does not. The repository therefore ships **two** implementations of
-the same interface and one test suite that runs against either:
+The repository ships two implementations behind the same header. One is
+correct, the other has 12 bugs planted in it. The same test suite runs against
+either, selected by a CMake flag, so you can watch it go red and then green
+without editing a single test.
 
-| Implementation | Purpose | Expected result |
+44 cases in total. All 44 pass against the correct implementation and 27 fail
+against the broken one.
+
+## The spec
+
+`mortgage = salary * factor`, where the factor comes from a table indexed by
+gender and age band:
+
+| Gender | Age | Factor |
 |---|---|---|
-| `src/mortgage_buggy.cpp` | 12 seeded defects (B1…B12) | suite goes **RED** (23/39 fail) |
-| `src/mortgage.cpp` | conformant to R1–R7 | suite goes **GREEN** (39/39 pass) |
+| Male | 18–35 | 75 |
+| Male | 36–45 | 55 |
+| Male | 46–55 | 30 |
+| Female | 18–30 | 70 |
+| Female | 31–40 | 50 |
+| Female | 41–50 | 35 |
+| Female | 51–55 | *not specified* |
 
----
+Valid ages are 18 to 55, valid salaries 0 to 10000. Anything else throws
+`std::out_of_range`.
 
-## The specification in one table
+That last row is not a typo. The original specification simply says nothing
+about women aged 51 to 55, even though 51–55 is inside the valid age range.
+Real specifications have holes like this. The interesting question for the lab
+is what a correct implementation should do about it, and the answer taken here
+is: refuse the input rather than invent a number. See R5 in
+`requirements/mortgage_requirements.md`.
 
-`mortgage = salary × factor`, with the factor selected by gender and age band.
-
-| Gender | Age band | Factor |
-|---|---|---|
-| Male | 18 – 35 | 75 |
-| Male | 36 – 45 | 55 |
-| Male | 46 – 55 | 30 |
-| Female | 18 – 30 | 70 |
-| Female | 31 – 40 | 50 |
-| Female | 41 – 50 | 35 |
-| Female | 51 – 55 | **undefined — specification gap, rejected** |
-
-Domain: `age ∈ [18, 55]`, `salary ∈ [0, 10000]`. Anything outside the domain —
-including the female `[51, 55]` gap — is rejected with `std::out_of_range`.
-
-The formal requirements R1–R7 live in
-[`requirements/mortgage_requirements.md`](requirements/mortgage_requirements.md).
-
----
-
-## Repository layout
+## Layout
 
 ```
-mortgage-testing-lab/
-├── README.md
-├── CMakeLists.txt                        # FetchContent -> GoogleTest v1.15.2
-├── requirements/
-│   ├── mortgage_requirements.md          # R1–R7 as "shall" statements
-│   ├── buggy_defects.md                  # B1–B12: bug, requirement, minimal test
-│   └── test_evidence.md                  # real RED and GREEN console output
-├── include/
-│   └── mortgage.hpp                      # single interface for both versions
-├── src/
-│   ├── mortgage_buggy.cpp                # 12 seeded defects — DO NOT FIX
-│   └── mortgage.cpp                      # corrected implementation
-├── tests/
-│   ├── nominal_test.cpp                  #  7 cases
-│   ├── boundary_test.cpp                 # 19 cases
-│   ├── robustness_test.cpp               #  8 cases
-│   └── equivalence_test.cpp              #  5 cases (weak/strong, normal/robust)
-└── .github/workflows/ci.yml              # cmake + build + ctest on ubuntu-latest
+CMakeLists.txt              fetches GoogleTest v1.15.2, builds four test binaries
+include/mortgage.hpp        the one interface both implementations satisfy
+src/mortgage.cpp            correct version
+src/mortgage_buggy.cpp      12 planted bugs — leave it alone
+requirements/
+  mortgage_requirements.md  R1–R7
+  buggy_defects.md          what each planted bug is and how to catch it
+  test_evidence.md          console output from the red and green runs
+tests/                      one file per technique
+tools/check_test_names.py   fails the build if the docs name a test that is gone
+.github/workflows/ci.yml
 ```
 
----
+## Running it
 
-## Building and running
-
-Requirements: CMake ≥ 3.14, a C++17 compiler, and network access on the first
-configure (GoogleTest is fetched from GitHub).
-
-### GREEN — the corrected implementation
+You need CMake 3.14 or newer, a C++17 compiler, and a network connection the
+first time you configure (GoogleTest is downloaded, not vendored).
 
 ```bash
-cmake -S . -B build -DUSE_BUGGY=OFF
+cmake -S . -B build
 cmake --build build --parallel
 ctest --test-dir build --output-on-failure
-# 100% tests passed, 0 tests failed out of 39
 ```
 
-### RED — the defective implementation
+That builds against `src/mortgage.cpp` and everything passes. To see the suite
+fail, point it at the broken implementation:
 
 ```bash
 cmake -S . -B build-buggy -DUSE_BUGGY=ON
 cmake --build build-buggy --parallel
 ctest --test-dir build-buggy --output-on-failure
-# 41% tests passed, 23 tests failed out of 39
 ```
 
-A single CMake option, `USE_BUGGY`, selects which `.cpp` is linked into the
-`mortgage` library. The tests never change — that is what makes the RED/GREEN
-comparison meaningful.
+27 of the 44 cases fail. The tests are byte-for-byte identical in both runs;
+only the linked object changes.
 
-Run one technique in isolation:
+Individual binaries take the usual GoogleTest flags:
 
 ```bash
-./build/boundary_test
 ./build/boundary_test --gtest_filter='BoundaryFemale.*'
 ```
 
----
+## How the four test files are organised
 
-## How the techniques are applied
+`nominal_test.cpp` picks one age from the middle of each band, nowhere near an
+edge, with a round salary. These are the tests you write first and the ones
+that catch the least: five of the seven still pass against the broken build.
 
-**Nominal testing** (`nominal_test.cpp`) — one interior value per valid age
-band, far from every boundary, with a mid-domain salary. Establishes that the
-happy path works at all.
+`boundary_test.cpp` is where most of the work is. It hits the outer edges of
+the domain (18, 55, 0, 10000) but more importantly the *internal* seams between
+adjacent bands: 30 and 31 for women, 35 and 36 for men, and so on. Eight of the
+twelve planted bugs are wrong comparisons on exactly those seams, which is not
+a coincidence — it is the whole reason boundary testing exists.
 
-**Boundary value testing** (`boundary_test.cpp`) — min, min⁺, max⁻, max of each
-partition *plus* the internal edges between adjacent age bands (18, 30, 31, 35,
-36, 40, 41, 45, 46, 50, 51, 55) and the salary edges (0, 1, 9999, 10000). This
-is where the off-by-one defects live: 8 of the 12 seeded bugs are caught here.
+`robustness_test.cpp` steps outside the domain and checks that the function
+refuses rather than answers. Ages 17 and 56, salaries −1 and 10001, plus
+plus an absurd one for good measure. The broken implementation has no rejection
+path at all, so seven of these eight tests fail against it. The one that passes
+is the check that men aged 51 to 55 are still valid — the gap belongs to the
+female table only. The last test puts two invalid inputs in the same call,
+which is the worst-case variant.
 
-**Robustness testing** (`robustness_test.cpp`) — pushes past the domain edges
-(17, 56, −1, 10001, `INT_MAX`, `INT_MIN`) and asserts that each is *rejected*
-rather than silently priced. The defective version has no rejection mechanism
-at all, so this file fails almost entirely against it.
+`equivalence_test.cpp` covers all four combinations of weak/strong and
+normal/robust. Weak normal takes one case per class index; strong normal is the
+full cross product of valid classes, six cells; weak robust breaks one
+partition at a time; strong robust breaks two at once. There is also a
+`PartitionConsistency` test that walks every age from 18 to 55 and asserts the
+factor never increases. That one is worth stealing for other projects — it
+catches gaps and overlaps that no finite set of sample points is guaranteed to
+hit.
 
-**Worst-case testing** — combines extreme values in the same call
-(`age = 17` and `salary = -1` simultaneously), covered at the end of
-`robustness_test.cpp` and in the strong-robust equivalence cases.
+## The planted bugs
 
-**Equivalence class testing** (`equivalence_test.cpp`) — all four flavours:
-*weak normal* (one case per class index), *strong normal* (Cartesian product of
-the valid classes, 2 × 3 × 1 = 6 cells), *weak robust* (single-fault: one
-invalid class at a time) and *strong robust* (multiple-fault: invalid age ×
-invalid salary). A final `PartitionConsistency` test sweeps the whole valid age
-domain to prove the bands contain neither a gap nor an overlap.
+Each one has a GitHub issue. The full write-up, including the exact line and
+the smallest input that exposes it, is in `requirements/buggy_defects.md`.
 
----
+| # | What's wrong | Breaks |
+|---|---|---|
+| B1 | Male band starts at 19 because of `18 < age` | R4 |
+| B2 | Male band stops at 34 because of `age < 35` | R4 |
+| B3 | Second male band starts at 32, overlapping the first | R4 |
+| B4 | Second male band stops at 39 instead of 45 | R4 |
+| B5 | No age validation anywhere; the `else` swallows everything | R2, R6 |
+| B6 | Female band starts at 19 | R5 |
+| B7 | Female factor is 75, copied from the male branch, should be 70 | R5, R7 |
+| B8 | Female band stops at 29 instead of 30 | R5 |
+| B9 | Second female band starts at 32, leaving age 31 unhandled | R5 |
+| B10 | Second female band stops at 39 instead of 40 | R5 |
+| B11 | Women aged 51–55 quietly get factor 35 instead of being refused | R5, R6 |
+| B12 | Salary is never validated and nothing ever throws | R3, R6 |
 
-## The 12 seeded defects
+B3 is the awkward one. The overlap on ages 32–34 is invisible from outside,
+because the first branch catches those ages before the second one gets a
+chance. It only shows up at age 35, where the returned factor of 55 proves the
+second band accepted somebody younger than 36. Worth discussing in class: a
+defect can violate the spec and still be unreachable through the public
+interface, and no amount of black-box testing will find it directly.
 
-Full analysis, with the requirement violated and the minimal exposing test for
-each, in [`requirements/buggy_defects.md`](requirements/buggy_defects.md).
+## CI
 
-| Bug | Summary | Requirement |
-|-----|---------|-------------|
-| B1  | Male lower boundary 18 excluded (`18 < age`) | R4 |
-| B2  | Male upper boundary 35 excluded (`age < 35`) | R4 |
-| B3  | Male second band starts at 32 instead of 36 (overlap) | R4 |
-| B4  | Male second band ends at 39 instead of 45 | R4 |
-| B5  | No age-domain validation; unbounded catch-all | R2, R6 |
-| B6  | Female lower boundary 18 excluded | R5 |
-| B7  | Female first band uses factor 75 instead of 70 | R5, R7 |
-| B8  | Female first band upper boundary 30 excluded | R5 |
-| B9  | Female second band starts at 32 instead of 31 (gap at 31) | R5 |
-| B10 | Female second band ends at 39 instead of 40 | R5 |
-| B11 | Female `[51,55]` specification gap silently priced at 35 | R5, R6 |
-| B12 | No salary-domain validation; no exception ever thrown | R3, R6 |
+`.github/workflows/ci.yml` runs on every push and pull request. Three jobs:
 
-Each bug is tracked as a GitHub issue in this repository.
+The first builds the correct implementation, runs `ctest`, and then runs
+`tools/check_test_names.py` so the markdown cannot go on citing tests that have
+been renamed.
 
----
+The second builds the *broken* implementation and fails the pipeline if the
+suite passes. A test suite that stops detecting the planted bugs has quietly
+become worthless, and without this job nobody would notice.
 
-## Continuous integration
+The third rebuilds under ASan and UBSan. It is there because of something the
+first two missed: the robustness tests used to feed `INT_MAX` in as a salary,
+and since the broken implementation multiplies before it validates, the red run
+was hitting signed overflow rather than the wrong answer being asserted on. The
+whole story is in `requirements/test_evidence.md`.
 
-[`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs on every push and
-pull request with two jobs:
+## Working on this
 
-1. **build-and-test** — configures with `USE_BUGGY=OFF`, builds and runs
-   `ctest`; the job fails if any test fails.
-2. **buggy-must-fail** — configures with `USE_BUGGY=ON` and runs the same
-   suite, failing the job if the suite *passes*. This guards against the suite
-   silently degrading: a test suite that no longer detects the seeded defects
-   has stopped being worth anything.
+Pick an issue, branch off main as `fix/something`, write the failing test
+before touching any code, and reference the issue number in the commit. PR #13
+is left open as a worked example of the flow.
 
----
-
-## Contribution flow for the team
-
-1. Pick an issue (`B1` … `B12`).
-2. Branch from `main`: `git checkout -b fix/<short-description>`.
-3. Write the failing test **first**, confirm it goes RED against
-   `src/mortgage_buggy.cpp`.
-4. Commit, push, open a PR referencing the issue (`Refs #N` / `Closes #N`).
-5. CI must be green before merging.
-
-See the example PR opened from the `fix/age-boundaries` branch.
-
----
-
-## License
-
-Academic coursework — UTFPR, Sistemas Embarcados.
+Do not fix `src/mortgage_buggy.cpp`. It is the fixture, not the deliverable.

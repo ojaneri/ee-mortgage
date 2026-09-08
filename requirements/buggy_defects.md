@@ -1,9 +1,10 @@
-# Seeded Defects in `src/mortgage_buggy.cpp` (B1 … B12)
+# The twelve planted bugs
 
-Line-by-line analysis of the defective implementation against requirements
-R1–R7 (`requirements/mortgage_requirements.md`).
+Osvaldo Janeri Filho <janeri@gmail.com>
 
-Code under analysis:
+What follows is a line-by-line reading of `src/mortgage_buggy.cpp` against
+R1–R7. Twelve defects, numbered B1 to B12, each with the requirement it breaks
+and the smallest call that shows it.
 
 ```cpp
  1  int mortgage(bool male, int age, int salary) {
@@ -19,131 +20,147 @@ Code under analysis:
 11  }
 ```
 
-Legend of the "minimal test" column: the smallest input triple that produces an
-observable difference between the defective and the conformant behaviour.
+Eleven lines, twelve bugs. That ratio is not an accident: every comparison on
+lines 3, 4, 7 and 8 is strict where it should be inclusive, and both `else`
+branches on lines 5 and 9 are doing duty as a catch-all for inputs that should
+never have got that far.
 
 ---
 
-## B1 — Male lower boundary 18 is excluded
+### B1 — age 18 is not in the men's first band
 
-* **Line:** 3 — `18 < age` (strict) instead of `18 <= age`.
-* **Bug:** age 18 does not enter the `[18,35]` band; it falls through both
-  `else if` (31 < 18 is false) into the catch-all and receives factor **30**.
-* **Requirement violated:** **R4** (`[18,35] → 75`).
-* **Minimal test:** `mortgage(Male, 18, 1000)` → expected `75000`, actual `30000`.
+Line 3 says `18 < age`, so 18 itself misses the band. It then misses line 4 as
+well, because `31 < 18` is false, and ends up in the catch-all with factor 30.
 
-## B2 — Male upper boundary 35 is excluded
+Breaks R4. `mortgage(Male, 18, 1000)` returns 30000 where 75000 is correct.
+Caught by `BoundaryMale.R4_MaleAtLowerDomainEdge18_StillGetsFactor75`.
 
-* **Line:** 3 — `age < 35` (strict) instead of `age <= 35`.
-* **Bug:** age 35 leaves the first band and is captured by line 4
-  (`31 < 35 && 35 < 40`), receiving factor **55**.
-* **Requirement violated:** **R4** (`[18,35] → 75`).
-* **Minimal test:** `mortgage(Male, 35, 1000)` → expected `75000`, actual `55000`.
+### B2 — age 35 is not in the men's first band either
 
-## B3 — Male second band starts at 32 instead of 36 (band overlap)
+Same line, other end: `age < 35`. This one is worse than B1 because 35 does not
+fall through to the catch-all — line 4 accepts it, since `31 < 35 && 35 < 40`,
+and hands back 55.
 
-* **Line:** 4 — `31 < age` instead of `age >= 36`; the guard claims ages
-  32…39, overlapping the specified `[18,35]` band on 32…35.
-* **Bug:** the `[36,45]` band is specified to begin at 36, but the predicate
-  admits ages 32…35. The overlap on 32…34 is *masked* by the branch ordering
-  (line 3 catches them first); it becomes observable exactly at age 35, where
-  the returned factor 55 can only originate from the second band — direct
-  evidence that the band accepts an age below 36.
-* **Requirement violated:** **R4** (`[36,45] → 55`, bands must not overlap).
-* **Minimal test:** `mortgage(Male, 35, 1000)` returns `55000` (factor 55) —
-  the second band accepted an age < 36. Structural inspection of line 4
-  confirms the overlap on 32…35.
+Breaks R4. `mortgage(Male, 35, 1000)` returns 55000 instead of 75000.
+Caught by `BoundaryMale.R4_MaleAtUpperEdgeOfYoungBand35_StillGetsFactor75`.
 
-## B4 — Male second band ends at 39 instead of 45
+### B3 — the men's second band starts at 32, not 36
 
-* **Line:** 4 — `age < 40` instead of `age <= 45`.
-* **Bug:** ages 40…45 fall to the catch-all on line 5 and receive factor
-  **30** instead of 55.
-* **Requirement violated:** **R4** (`[36,45] → 55`).
-* **Minimal test:** `mortgage(Male, 40, 1000)` → expected `55000`, actual `30000`.
+Line 4 opens with `31 < age`, so the band claims ages 32 to 39. R4 says it
+starts at 36. Ages 32 to 35 therefore belong to two bands at once.
 
-## B5 — No age-domain validation; unbounded catch-all
+This is the only one of the twelve that cannot be observed directly. The
+overlap on 32, 33 and 34 is hidden because line 3 catches those ages first, so
+from outside the function they look correct. The only visible trace is at age
+35, where the answer of 55 could only have come from the second band — which
+proves the band accepted somebody under 36.
 
-* **Lines:** 5 and 9 — the `else` branches accept *any* age.
-* **Bug:** ages below 18 and above 55 are silently accepted and return
-  `30 * salary` (male) or `35 * salary` (female) instead of being rejected.
-* **Requirements violated:** **R2**, **R6**.
-* **Minimal test:** `mortgage(Male, 17, 1000)` must throw `std::out_of_range`;
-  the defective version returns `30000`. Same for `age = 56`.
+Breaks R4. Evidenced by the same test as B2, plus
+`PartitionConsistency.R4R5_NoGapsOrOverlapsAcrossTheWholeAgeDomain`; the
+overlap itself is confirmed by reading line 4.
 
-## B6 — Female lower boundary 18 is excluded
+### B4 — the men's second band stops at 39, not 45
 
-* **Line:** 7 — `18 < age` (strict) instead of `18 <= age`.
-* **Bug:** age 18 misses the first band, misses line 8 (`31 < 18` false) and
-  is caught by line 9 with factor **35**.
-* **Requirement violated:** **R5** (`[18,30] → 70`).
-* **Minimal test:** `mortgage(Female, 18, 1000)` → expected `70000`, actual `35000`.
+`age < 40` on line 4. Ages 40 through 45 fall past it into the catch-all and
+get 30 instead of 55.
 
-## B7 — Female first band uses factor 75 instead of 70
+Breaks R4. `mortgage(Male, 40, 1000)` returns 30000 instead of 55000.
+Caught by `NominalMale.R4_MaleAgeInsideMiddleBand_AppliesFactor55` and
+`BoundaryMale.R4_MaleAtUpperEdgeOfMiddleBand45_StillGetsFactor55`.
 
-* **Line:** 7 — `return 75 * salary` (copy/paste from the male branch).
-* **Bug:** every accepted female applicant in `[18,30]` is over-valued by a
-  factor of 5 per salary unit.
-* **Requirement violated:** **R5** (`[18,30] → 70`), **R7**.
-* **Minimal test:** `mortgage(Female, 25, 1000)` → expected `70000`, actual `75000`.
+### B5 — nothing validates the age
 
-## B8 — Female first band upper boundary 30 is excluded
+Lines 5 and 9. Both `else` branches accept any integer at all, so a 12-year-old
+and a 90-year-old both get a mortgage, at factor 30 or 35 depending on gender.
+There is no code path in this function that refuses anything.
 
-* **Line:** 7 — `age < 30` instead of `age <= 30`.
-* **Bug:** age 30 misses band 1, misses band 2 (`31 < 30` false) and is caught
-  by line 9 with factor **35**.
-* **Requirement violated:** **R5** (`[18,30] → 70`).
-* **Minimal test:** `mortgage(Female, 30, 1000)` → expected `70000`, actual `35000`.
+Breaks R2 and R6. `mortgage(Male, 17, 1000)` should throw; it returns 30000.
+Caught across `RobustnessAge.*` and `BoundaryAge.*`.
 
-## B9 — Female second band starts at 32 instead of 31 (gap at 31)
+### B6 — age 18 is not in the women's first band
 
-* **Line:** 8 — `31 < age` instead of `age >= 31`.
-* **Bug:** age 31 belongs to no band and falls to the catch-all with factor
-  **35**. Combined with B8 this creates a hole in the age partition.
-* **Requirement violated:** **R5** (`[31,40] → 50`, bands must not have gaps).
-* **Minimal test:** `mortgage(Female, 31, 1000)` → expected `50000`, actual `35000`.
+Line 7, `18 < age`, the same mistake as B1. Age 18 misses band one, misses band
+two, lands on 35.
 
-## B10 — Female second band ends at 39 instead of 40
+Breaks R5. `mortgage(Female, 18, 1000)` returns 35000 instead of 70000.
+Caught by `BoundaryFemale.R5_FemaleAtLowerDomainEdge18_GetsFactor70`.
 
-* **Line:** 8 — `age < 40` instead of `age <= 40`.
-* **Bug:** age 40 falls to the catch-all and receives factor **35**.
-* **Requirement violated:** **R5** (`[31,40] → 50`).
-* **Minimal test:** `mortgage(Female, 40, 1000)` → expected `50000`, actual `35000`.
+### B7 — the women's first band uses the men's factor
 
-## B11 — Female specification gap `[51,55]` is silently given factor 35
+Line 7 returns `75 * salary`. R5 says 70. This looks like the male branch was
+copied and the comparisons were adjusted but the constant was not.
 
-* **Line:** 9 — the catch-all also swallows the undefined female band.
-* **Bug:** R5 defines no factor for female ages 51…55; the defective code
-  returns `35 * salary` instead of rejecting the input, hiding a known
-  specification gap behind a plausible-looking number.
-* **Requirements violated:** **R5**, **R6**.
-* **Minimal test:** `mortgage(Female, 51, 1000)` must throw `std::out_of_range`;
-  the defective version returns `35000`. Same for `age = 55`.
+Breaks R5 and R7. `mortgage(Female, 25, 1000)` returns 75000 instead of 70000.
+Caught by `NominalFemale.R5_FemaleAgeInsideYoungBand_AppliesFactor70` and
+`StrongNormalEquivalence.R4R5R7_CartesianProductOfValidClasses`.
 
-## B12 — No salary-domain validation
+### B8 — the women's first band stops at 29
 
-* **Lines:** 1–11 — `salary` is never checked and no exception is ever thrown.
-* **Bug:** negative salaries produce negative mortgages and salaries above
-  10000 are accepted, so the function has no rejection mechanism at all.
-* **Requirements violated:** **R3**, **R6**.
-* **Minimal test:** `mortgage(Male, 30, -1)` must throw `std::out_of_range`;
-  the defective version returns `-75`. Same for `salary = 10001`.
+`age < 30` on line 7, so 30 drops out. It is not picked up by line 8 either,
+because that starts at 32, so it lands on the catch-all with 35.
+
+Breaks R5. `mortgage(Female, 30, 1000)` returns 35000 instead of 70000.
+Caught by `BoundaryFemale.R5_FemaleAtUpperEdgeOfYoungBand30_StillGetsFactor70`.
+
+### B9 — the women's second band starts at 32, leaving 31 homeless
+
+Line 8, `31 < age`. R5 puts 31 in the second band; the code puts it nowhere.
+Together with B8 this makes two consecutive ages, 30 and 31, that belong to two
+different bands and both come back as 35.
+
+Breaks R5. `mortgage(Female, 31, 1000)` returns 35000 instead of 50000.
+Caught by `BoundaryFemale.R5_FemaleAtLowerEdgeOfMiddleBand31_GetsFactor50` and
+by the partition sweep.
+
+### B10 — the women's second band stops at 39
+
+`age < 40` on line 8, so 40 falls through to 35 instead of 50.
+
+Breaks R5. `mortgage(Female, 40, 1000)` returns 35000 instead of 50000.
+Caught by `BoundaryFemale.R5_FemaleAtUpperEdgeOfMiddleBand40_StillGetsFactor50`.
+
+### B11 — women aged 51 to 55 get a made-up factor
+
+Line 9 again. The catch-all also swallows the band the specification never
+defined, and answers 35 for it.
+
+Of the twelve this is the one that would survive longest in production. A wrong
+factor can be spotted by holding the output next to the table. An invented
+factor for a band the table does not mention looks entirely reasonable, and the
+gap in the specification stays hidden until somebody audits the code.
+
+Breaks R5 and R6. `mortgage(Female, 51, 1000)` should throw; it returns 35000,
+and the same for 52 through 55.
+Caught by `RobustnessSpecGap.R5R6_FemaleInUndefinedBand_ThrowsOutOfRange` and
+`BoundaryFemale.R5_FemaleAtFirstAgeOfUndefinedBand51_IsRejected`.
+
+### B12 — nothing validates the salary
+
+The parameter is read once, on whichever return line fires, and never checked.
+Negative salaries produce negative mortgages; salaries above the cap are
+accepted without comment. Combined with B5, the function has no rejection
+mechanism of any kind, which is why the whole of `robustness_test.cpp` fails
+against it.
+
+Breaks R3 and R6. `mortgage(Male, 30, -1)` should throw; it returns −75.
+Caught by `RobustnessSalary.*`, `WeakRobustEquivalence.*` and
+`StrongRobustEquivalence.*`.
 
 ---
 
-## Traceability summary
+## Where each bug is caught
 
-| Bug | Requirement(s) | Kind | Exposed by (file) |
-|-----|----------------|------|-------------------|
-| B1  | R4 | boundary, `<` instead of `<=` | `boundary_test.cpp` |
-| B2  | R4 | boundary, `<` instead of `<=` | `boundary_test.cpp` |
-| B3  | R4 | band overlap 32…35 | `boundary_test.cpp` |
-| B4  | R4 | band truncated at 39 | `boundary_test.cpp`, `nominal_test.cpp` |
-| B5  | R2, R6 | missing domain validation | `robustness_test.cpp` |
-| B6  | R5 | boundary, `<` instead of `<=` | `boundary_test.cpp` |
-| B7  | R5, R7 | wrong factor (75 vs 70) | `nominal_test.cpp`, `equivalence_test.cpp` |
-| B8  | R5 | boundary, `<` instead of `<=` | `boundary_test.cpp` |
-| B9  | R5 | band gap at 31 | `boundary_test.cpp` |
-| B10 | R5 | band truncated at 39 | `boundary_test.cpp` |
-| B11 | R5, R6 | specification gap not rejected | `robustness_test.cpp` |
-| B12 | R3, R6 | missing domain validation | `robustness_test.cpp` |
+| Bug | Requirement | Kind | Test file |
+|-----|---|---|---|
+| B1  | R4 | strict comparison at a band edge | boundary |
+| B2  | R4 | strict comparison at a band edge | boundary |
+| B3  | R4 | bands overlap on 32–35 | boundary, equivalence |
+| B4  | R4 | band truncated at 39 | boundary, nominal |
+| B5  | R2, R6 | no age validation | robustness |
+| B6  | R5 | strict comparison at a band edge | boundary |
+| B7  | R5, R7 | wrong constant, 75 for 70 | nominal, equivalence |
+| B8  | R5 | strict comparison at a band edge | boundary |
+| B9  | R5 | gap at age 31 | boundary, equivalence |
+| B10 | R5 | band truncated at 39 | boundary |
+| B11 | R5, R6 | spec gap answered instead of refused | robustness, boundary |
+| B12 | R3, R6 | no salary validation | robustness, equivalence |
