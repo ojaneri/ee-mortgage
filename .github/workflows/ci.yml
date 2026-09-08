@@ -1,8 +1,17 @@
+# Mortgage Testing Lab — CI
+# Osvaldo Janeri Filho <janeri@gmail.com>
+
 name: CI
 
 on:
   push:
   pull_request:
+
+# A push to a branch that has a PR open fires both triggers, so without this
+# every commit on a PR branch builds twice.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build-and-test:
@@ -21,6 +30,9 @@ jobs:
 
       - name: Run tests — must be GREEN
         run: ctest --test-dir build --output-on-failure
+
+      - name: Docs must not name tests that no longer exist
+        run: python3 tools/check_test_names.py
 
   buggy-must-fail:
     name: The same suite must go RED against the defective implementation
@@ -44,3 +56,26 @@ jobs:
           else
             echo "Suite correctly detected the seeded defects (RED)."
           fi
+
+  sanitizers:
+    name: Address and UB sanitizers
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Added after a real find: the robustness tests used to pass INT_MAX as a
+      # salary, and the buggy implementation multiplies before it validates, so
+      # the red run was hitting signed overflow instead of the wrong answer we
+      # were asserting on. Cheap enough to keep watching for.
+      - name: Configure with sanitizers
+        run: >
+          cmake -S . -B build-san
+          -DCMAKE_BUILD_TYPE=Debug
+          -DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -fno-sanitize-recover=all -g"
+
+      - name: Build
+        run: cmake --build build-san --parallel
+
+      - name: Run
+        run: ctest --test-dir build-san --output-on-failure
