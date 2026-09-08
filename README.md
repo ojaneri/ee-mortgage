@@ -4,6 +4,12 @@ Project #1 — Functional Testing
 Sistemas Embarcados, UTFPR — Prof. Max Mauro Dias Santos
 Osvaldo Janeri Filho <janeri@gmail.com>
 
+[![CI](https://github.com/ojaneri/ee-mortgage/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ojaneri/ee-mortgage/actions/workflows/ci.yml)
+
+The badge tracks `main` only. It goes green when all three jobs pass: the suite
+against the correct implementation, the same suite failing as it should against
+the broken one, and the sanitizer build.
+
 A small C++ lab for practising black-box test design: nominal, boundary value,
 robustness, worst-case and equivalence class testing. The system under test is
 one function, `mortgage(gender, age, salary)`, which is deliberately trivial —
