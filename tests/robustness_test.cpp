@@ -232,26 +232,3 @@ TEST(RejectionReason, R6_ValidInputProducesNoRejection) {
   EXPECT_EQ(rejection_reason(Gender::Male, 30, kSalary), "");
   EXPECT_EQ(rejection_reason(Gender::Female, 30, kSalary), "");
 }
-
-// ===========================================================================
-// Beyond the requirements
-// ===========================================================================
-
-// The one test in this lab that answers to no numbered requirement.
-//
-// R1 says the function takes a gender and quietly assumes it is always one of
-// the two enumerators. C++ does not guarantee that: a scoped enum holds
-// whatever its underlying type holds, and `static_cast<Gender>(7)` at a call
-// site produces a Gender that is neither Male nor Female.
-//
-// The implementation used to select the table with
-// `gender == Gender::Male ? male_factor(age) : female_factor(age)`, which sent
-// that value down the female branch without comment. That is the same shape as
-// bugs B5 and B11 — a catch-all that answers instead of refusing — sitting in
-// the file whose whole job is to demonstrate the fix. It is now a switch with
-// a default that throws, and this test holds it there.
-TEST(RobustnessGender, BeyondSpec_UnknownGenderValueIsRejected) {
-  const auto nonsense = static_cast<Gender>(7);
-  EXPECT_THROW(mortgage(nonsense, 30, kSalary), std::out_of_range);
-  EXPECT_TRUE(mentions(rejection_reason(nonsense, 30, kSalary), "unknown gender"));
-}

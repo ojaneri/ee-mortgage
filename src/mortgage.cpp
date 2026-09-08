@@ -120,29 +120,25 @@ int mortgage(Gender gender, int age, int salary) {
 
   // Step 3 — pick the lookup table and get the factor.
   //
-  // A switch rather than `gender == Gender::Male ? male_factor : female_factor`.
-  // The ternary reads more compactly but has a flaw: it treats *everything*
-  // that is not Male as Female. A scoped enum can hold any value its underlying
-  // type can hold, and `static_cast<Gender>(7)` at a call site is all it takes
-  // to produce one. With the ternary, that nonsense value would quietly get a
-  // woman's mortgage.
+  // R1 states that the function takes a gender, and the specification admits
+  // exactly two: male and female. There is no third case to handle, so the
+  // ternary is the whole of it.
   //
-  // That is the same failure shape as bugs B5 and B11 — a catch-all branch that
-  // answers when it should refuse — so it would be a poor look in the file
-  // whose job is to demonstrate the fix. The switch names both real cases and
-  // throws on anything else.
-  int factor = 0;
-  switch (gender) {
-    case Gender::Male:
-      factor = male_factor(age);
-      break;
-    case Gender::Female:
-      factor = female_factor(age);
-      break;
-    default:
-      throw std::out_of_range("unknown gender value: " +
-                              std::to_string(static_cast<int>(gender)));
-  }
+  // Worth knowing what this does NOT do, because it is a real property of the
+  // code rather than an oversight. A scoped enum can hold any value its
+  // underlying type can hold, so `static_cast<Gender>(7)` at a call site
+  // produces a Gender that is neither enumerator, and this expression sends it
+  // down the female branch without a word.
+  //
+  // An earlier revision used a switch with a default that threw. It was backed
+  // out on purpose: R1 to R7 define no such input and R6 lists exactly three
+  // things that must be rejected, none of them a gender. Implementing a
+  // rejection the specification never asked for is the same category of error
+  // as inventing a factor for the 51-55 gap — deciding, in code, something the
+  // requirement did not decide. If an invalid gender is a real concern, the
+  // fix belongs in the specification first.
+  const int factor =
+      (gender == Gender::Male) ? male_factor(age) : female_factor(age);
 
   // Step 4 — apply R7 and return.
   //

@@ -14,8 +14,9 @@ correct, the other has 12 bugs planted in it. The same test suite runs against
 either, selected by a CMake flag, so you can watch it go red and then green
 without editing a single test.
 
-44 cases in total. All 44 pass against the correct implementation and 27 fail
-against the broken one.
+43 cases in total. All 43 pass against the correct implementation and 26 fail
+against the broken one, and every one of those 26 failures traces to one of the
+twelve planted bugs.
 
 ## The spec
 
@@ -78,7 +79,7 @@ cmake --build build-buggy --parallel
 ctest --test-dir build-buggy --output-on-failure
 ```
 
-27 of the 44 cases fail. The tests are byte-for-byte identical in both runs;
+26 of the 43 cases fail. The tests are byte-for-byte identical in both runs;
 only the linked object changes.
 
 Individual binaries take the usual GoogleTest flags:
@@ -100,12 +101,22 @@ twelve planted bugs are wrong comparisons on exactly those seams, which is not
 a coincidence — it is the whole reason boundary testing exists.
 
 `robustness_test.cpp` steps outside the domain and checks that the function
-refuses rather than answers. Ages 17 and 56, salaries −1 and 10001, plus
-plus an absurd one for good measure. The broken implementation has no rejection
-path at all, so seven of these eight tests fail against it. The one that passes
-is the check that men aged 51 to 55 are still valid — the gap belongs to the
-female table only. The last test puts two invalid inputs in the same call,
+refuses rather than answers. Ages 17 and 56, salaries −1 and 10001, plus an
+absurd one for good measure. The broken implementation has no rejection path at
+all, so ten of these twelve tests fail against it. One of the two that passes is
+the check that men aged 51 to 55 are still valid — the gap belongs to the female
+table only. There is also a test that puts two invalid inputs in the same call,
 which is the worst-case variant.
+
+The `RejectionReason` group at the end of that file came later. R6 makes every
+rejection the same exception type, so nothing in the suite could tell an
+out-of-range age (R2) apart from the hole in the female table (R5), even though
+those are two different requirements failing for two different reasons. A
+mutation run made it concrete: widening the age guard by a year went completely
+unnoticed, because the defensive throws inside the factor tables caught the
+overshoot and produced an `out_of_range` of their own. Those tests pin the
+message instead. They assert which requirement did the rejecting; they do not
+add any behaviour beyond R1–R7.
 
 `equivalence_test.cpp` covers all four combinations of weak/strong and
 normal/robust. Weak normal takes one case per class index; strong normal is the
