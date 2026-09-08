@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-and-test:
+    name: Build and run the functional test suite
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Configure (correct implementation)
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DUSE_BUGGY=OFF
+
+      - name: Build
+        run: cmake --build build --parallel
+
+      - name: Run tests — must be GREEN
+        run: ctest --test-dir build --output-on-failure
+
+  buggy-must-fail:
+    name: The same suite must go RED against the defective implementation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Configure (buggy implementation)
+        run: cmake -S . -B build-buggy -DCMAKE_BUILD_TYPE=Release -DUSE_BUGGY=ON
+
+      - name: Build
+        run: cmake --build build-buggy --parallel
+
+      - name: Run tests — a GREEN run here means the suite is too weak
+        run: |
+          if ctest --test-dir build-buggy --output-on-failure; then
+            echo "::error::The suite passed against the buggy implementation."
+            exit 1
+          else
+            echo "Suite correctly detected the seeded defects (RED)."
+          fi

@@ -1,0 +1,6 @@
+build/
+build-buggy/
+_deps/
+*.o
+*.a
+Testing/
