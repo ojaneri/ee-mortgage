@@ -190,3 +190,44 @@ TEST(BoundaryAge, R2_AgeJustBelowLowerDomainEdge17_IsRejected) {
 TEST(BoundaryAge, R2_AgeJustAboveUpperDomainEdge56_IsRejected) {
   EXPECT_THROW(mortgage(Gender::Male, 56, kSalary), std::out_of_range);
 }
+
+// ===========================================================================
+// Worst case — age boundaries crossed with salary boundaries
+// ===========================================================================
+//
+// Everything above moves one input at a time and holds the other at a nominal
+// value. Worst-case testing takes the extreme points of both inputs and
+// combines them, which is where two guards that are each correct on their own
+// can still interact badly.
+//
+// Added on branch fix/age-boundaries as the worked example of the team flow.
+// Refs #1 (B1), #2 (B2).
+
+// Age 18 is the low edge of the men's first band (bug B1 territory), crossed
+// with both ends of the salary domain. 18 with salary 0 gives 0; 18 with
+// salary 10000 gives the largest number this function can produce, 750000.
+TEST(WorstCaseBoundary, R4R3_MaleAtBandEdge18WithSalaryDomainEdges_UsesFactor75) {
+  EXPECT_EQ(mortgage(Gender::Male, 18, 0), 0);
+  EXPECT_EQ(mortgage(Gender::Male, 18, 10000), 750000);
+}
+
+// The other end of the same band, age 35 (bug B2 and B3 territory), against
+// the same two salaries.
+TEST(WorstCaseBoundary, R4R3_MaleAtBandEdge35WithSalaryDomainEdges_UsesFactor75) {
+  EXPECT_EQ(mortgage(Gender::Male, 35, 0), 0);
+  EXPECT_EQ(mortgage(Gender::Male, 35, 10000), 750000);
+}
+
+// The women's 30/31 seam (bugs B8 and B9) against the salary edges.
+TEST(WorstCaseBoundary, R5R3_FemaleAtBandEdge30WithSalaryDomainEdges_UsesFactor70) {
+  EXPECT_EQ(mortgage(Gender::Female, 30, 0), 0);
+  EXPECT_EQ(mortgage(Gender::Female, 30, 10000), 700000);
+}
+
+// An age outside the domain combined with a valid salary edge. The age guard
+// must fire regardless of what the salary happens to be, including the two
+// values most likely to be special-cased somewhere.
+TEST(WorstCaseBoundary, R2R3R6_AgeEdgeOutsideDomainWithSalaryEdge_IsRejected) {
+  EXPECT_THROW(mortgage(Gender::Male, 17, 10000), std::out_of_range);
+  EXPECT_THROW(mortgage(Gender::Male, 56, 0), std::out_of_range);
+}
