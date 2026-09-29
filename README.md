@@ -2,7 +2,8 @@
 
 Project #1 — Functional Testing
 Sistemas Embarcados, UTFPR — Prof. Max Mauro Dias Santos
-Osvaldo Janeri Filho <janeri@gmail.com>
+Osvaldo Janeri Filho <janeri@gmail.com>\
+Marcos Klosowski Junior <marcosj.2017@alunos.utfpr.edu.br>
 
 [![CI](https://github.com/ojaneri/ee-mortgage/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ojaneri/ee-mortgage/actions/workflows/ci.yml)
 

@@ -10,6 +10,7 @@ Names written as a gtest filter (trailing '*') are treated as prefixes, since
 that is what they are.
 
 Osvaldo Janeri Filho <janeri@gmail.com>
+Marcos Klosowski Junior <marcosj.2017@alunos.utfpr.edu.br>
 """
 import glob
 import re

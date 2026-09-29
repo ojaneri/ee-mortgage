@@ -1,6 +1,7 @@
 # Evidence
 
-Osvaldo Janeri Filho <janeri@gmail.com>
+Osvaldo Janeri Filho <janeri@gmail.com>\
+Marcos Klosowski Junior <marcosj.2017@alunos.utfpr.edu.br>
 
 Everything below is console output, pasted from real runs. Ubuntu 24.04,
 GCC 13.3.0, CMake 3.28.3, GoogleTest v1.15.2 pulled in by FetchContent, C++17.

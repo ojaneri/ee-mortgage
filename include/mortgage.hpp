@@ -1,5 +1,6 @@
 // mortgage.hpp — Mortgage Testing Lab
 // Osvaldo Janeri Filho <janeri@gmail.com>
+// Marcos Klosowski Junior <marcosj.2017@alunos.utfpr.edu.br>
 //
 // This header is the contract. It declares one function and the constants that
 // bound its inputs, and nothing else. Both implementations in src/ satisfy this

@@ -1,5 +1,6 @@
 # Mortgage Testing Lab
 # Osvaldo Janeri Filho <janeri@gmail.com>
+# Marcos Klosowski Junior <marcosj.2017@alunos.utfpr.edu.br>
 #
 # Builds the mortgage library and four test executables, one per testing
 # technique. The whole file exists to support one trick: the same test binaries

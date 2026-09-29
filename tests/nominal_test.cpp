@@ -1,5 +1,6 @@
 // nominal_test.cpp — Mortgage Testing Lab
 // Osvaldo Janeri Filho <janeri@gmail.com>
+// Marcos Klosowski Junior <marcosj.2017@alunos.utfpr.edu.br>
 //
 // WHAT NOMINAL TESTING IS
 //

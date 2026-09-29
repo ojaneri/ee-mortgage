@@ -1,5 +1,6 @@
 // mortgage_buggy.cpp — Mortgage Testing Lab
 // Osvaldo Janeri Filho <janeri@gmail.com>
+// Marcos Klosowski Junior <marcosj.2017@alunos.utfpr.edu.br>
 //
 // The broken implementation. DO NOT FIX IT. This file is the fixture that
 // proves the test suite is worth something: if the suite still passes after

@@ -1,6 +1,7 @@
 # Requirements
 
-Osvaldo Janeri Filho <janeri@gmail.com>
+Osvaldo Janeri Filho <janeri@gmail.com>\
+Marcos Klosowski Junior <marcosj.2017@alunos.utfpr.edu.br>\
 Project #1 — Functional Testing · Sistemas Embarcados, UTFPR
 
 The system under test is a single function that works out how much mortgage an

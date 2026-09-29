@@ -1,5 +1,6 @@
 // mortgage.cpp — Mortgage Testing Lab
 // Osvaldo Janeri Filho <janeri@gmail.com>
+// Marcos Klosowski Junior <marcosj.2017@alunos.utfpr.edu.br>
 //
 // The correct implementation. Read include/mortgage.hpp first — it explains
 // what the function is for and what the factors 75, 55, 30, 70, 50 and 35

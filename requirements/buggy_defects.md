@@ -1,6 +1,7 @@
 # The twelve planted bugs
 
-Osvaldo Janeri Filho <janeri@gmail.com>
+Osvaldo Janeri Filho <janeri@gmail.com>\
+Marcos Klosowski Junior <marcosj.2017@alunos.utfpr.edu.br>
 
 What follows is a line-by-line reading of `src/mortgage_buggy.cpp` against
 R1–R7. Twelve defects, numbered B1 to B12, each with the requirement it breaks
