@@ -1,0 +1,311 @@
+<!doctype html>
+<!--
+  Mortgage Testing Lab — console replay
+  Osvaldo Janeri Filho <janeri@gmail.com>
+  Marcos Klosowski Junior <marcosj.2017@alunos.utfpr.edu.br>
+
+  Template for docs/console.html. Do not edit the generated file; edit this
+  one and run tools/build_console.py.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mortgage Testing Lab — console</title>
+<style>
+  :root {
+    --bg: #0d1117; --panel: #161b22; --term: #0a0c10; --line: #30363d;
+    --fg: #c9d1d9; --dim: #6e7681; --prompt: #58a6ff; --cmd: #f0f6fc;
+    --ok: #3fb950; --bad: #f85149; --warn: #d29922; --info: #79c0ff; --accent: #bc8cff;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--fg);
+    font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 20px 16px 32px; }
+  header h1 { font-size: 20px; margin: 0 0 2px; color: var(--cmd); }
+  header p { margin: 0; color: var(--dim); font-size: 13px; }
+
+  .bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 16px 0 10px; }
+  .tabs { display: flex; gap: 4px; background: var(--panel); border: 1px solid var(--line);
+    border-radius: 8px; padding: 3px; }
+  .tabs button, .ctl button, .ctl select {
+    background: transparent; color: var(--fg); border: 0; border-radius: 6px;
+    padding: 6px 12px; font: inherit; cursor: pointer; }
+  .tabs button[aria-selected="true"] { background: var(--line); color: var(--cmd); }
+  .tabs button .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+    margin-right: 6px; vertical-align: 1px; }
+  .ctl { display: flex; gap: 4px; background: var(--panel); border: 1px solid var(--line);
+    border-radius: 8px; padding: 3px; margin-left: auto; }
+  .ctl button:hover, .tabs button:hover { background: #21262d; }
+  .ctl select { background: var(--panel); }
+
+  .steps { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .steps button { background: var(--panel); color: var(--dim); border: 1px solid var(--line);
+    border-radius: 999px; padding: 3px 10px; font: 12px ui-monospace, monospace; cursor: pointer; }
+  .steps button.done { color: var(--fg); }
+  .steps button.now { color: var(--cmd); border-color: var(--prompt); }
+
+  .term { background: var(--term); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .chrome { display: flex; align-items: center; gap: 7px; padding: 9px 12px;
+    background: var(--panel); border-bottom: 1px solid var(--line); }
+  .chrome i { width: 12px; height: 12px; border-radius: 50%; display: block; }
+  .chrome span { margin-left: 8px; color: var(--dim); font: 12px ui-monospace, monospace; }
+  #screen { height: min(68vh, 640px); overflow: auto; padding: 12px 14px;
+    font: 12.5px/1.5 ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    white-space: pre; tab-size: 8; }
+  #screen div { min-height: 1.5em; }
+  .c-prompt { color: var(--prompt); }
+  .c-cmd { color: var(--cmd); font-weight: 600; }
+  .c-ok { color: var(--ok); }
+  .c-bad { color: var(--bad); }
+  .c-warn { color: var(--warn); }
+  .c-info { color: var(--info); }
+  .c-dim { color: var(--dim); }
+  .c-sec { color: var(--accent); font-weight: 600; }
+  .cursor { display: inline-block; width: .6em; background: var(--fg); animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 8px; margin-top: 10px; }
+  .summary div { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; }
+  .summary b { display: block; font-size: 18px; color: var(--cmd); font-variant-numeric: tabular-nums; }
+  .summary small { color: var(--dim); }
+  footer { margin-top: 14px; color: var(--dim); font-size: 12px; }
+  @media (max-width: 640px) { .ctl { margin-left: 0; } #screen { font-size: 11px; } }
+  @media (prefers-reduced-motion: reduce) { .cursor { animation: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Mortgage Testing Lab — console replay</h1>
+    <p>Project #1 — Functional Testing · Sistemas Embarcados, UTFPR ·
+      Osvaldo Janeri Filho &amp; Marcos Klosowski Junior</p>
+  </header>
+
+  <div class="bar">
+    <div class="tabs" role="tablist" id="tabs"></div>
+    <div class="ctl">
+      <button id="play" title="Play / pause (space)">⏸ Pause</button>
+      <button id="restart" title="Restart (r)">↺ Restart</button>
+      <button id="skip" title="Show everything (e)">⏭ End</button>
+      <select id="speed" title="Speed" aria-label="Speed">
+        <option value="0.5">0.5×</option><option value="1" selected>1×</option>
+        <option value="3">3×</option><option value="10">10×</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="steps" id="steps"></div>
+
+  <div class="term">
+    <div class="chrome">
+      <i style="background:#ff5f56"></i><i style="background:#ffbd2e"></i><i style="background:#27c93f"></i>
+      <span id="title">~/ee-mortgage</span>
+    </div>
+    <div id="screen" aria-live="off"></div>
+  </div>
+
+  <div class="summary" id="summary"></div>
+
+  <footer>Replayed from the real transcripts in <code>docs/run_correct.txt</code> and
+    <code>docs/run_buggy.txt</code>; nothing is typed that was not run.
+    Keys: space pause · r restart · e end · 1/2 switch session.</footer>
+</div>
+
+<script id="sessions" type="application/json">/*__SESSIONS__*/[]</script>
+<script>
+(() => {
+  const SESSIONS = JSON.parse(document.getElementById("sessions").textContent);
+  const $ = id => document.getElementById(id);
+  const screen = $("screen");
+
+  // One transcript -> a list of steps. A step is a command (typed) and the
+  // output lines that follow it. Text before the first command is a banner.
+  function parse(text) {
+    const lines = text.replace(/\n+$/, "").split("\n");
+    const steps = [{ cmd: null, out: [] }];
+    for (const l of lines) {
+      if (l.startsWith("$ ")) steps.push({ cmd: l.slice(2), out: [] });
+      else steps[steps.length - 1].out.push(l);
+    }
+    // The "=== N. Title ===" banner belongs visually before the next command,
+    // so move trailing section headers off the previous step's output.
+    for (let i = 1; i < steps.length; i++) {
+      const prev = steps[i - 1].out, carry = [];
+      while (prev.length && /^(=+|\s\d\. .*|)$/.test(prev[prev.length - 1])) carry.unshift(prev.pop());
+      if (carry.some(l => /^\s\d\. /.test(l))) steps[i].pre = carry;
+      else prev.push(...carry);
+    }
+    return steps;
+  }
+
+  function classFor(l) {
+    if (/^\[exit code: 0\]/.test(l)) return "c-ok";
+    if (/^\[exit code: /.test(l)) return "c-bad";
+    if (/^=+$|^\s\d\. /.test(l)) return "c-sec";
+    if (/\[\s+OK \]|\[  PASSED  \]|\bPassed\b|100% tests passed/.test(l)) return "c-ok";
+    if (/FAILED|\*\*\*Failed|: Failure$|\(Failed\)|Errors while running|tests failed out of/.test(l)) return "c-bad";
+    if (/^\s+Which is:|^Expected|^  Actual|^Value of:|threw|throws/.test(l)) return "c-warn";
+    if (/^\[ RUN      \]|^\s+Start\s+\d+:/.test(l)) return "c-info";
+    if (/^\[[=-]{10}\]|^-- |^\[\s*\d+%\]|^Running main|^Note: |^Internal ctest|^Test project/.test(l)) return "c-dim";
+    return "";
+  }
+
+  function lineEl(text, cls) {
+    const d = document.createElement("div");
+    if (cls) d.className = cls;
+    d.textContent = text;
+    return d;
+  }
+  function promptEl(cmd) {
+    const d = document.createElement("div");
+    d.innerHTML = '<span class="c-prompt">~/ee-mortgage$ </span><span class="c-cmd"></span>';
+    d.lastChild.textContent = cmd;
+    return d;
+  }
+
+  function stats(text) {
+    const m = text.match(/(\d+)% tests passed, (\d+) tests failed out of (\d+)/);
+    const exit = [...text.matchAll(/\[exit code: (\d+)\]/g)].map(x => +x[1]);
+    if (!m) return [];
+    const total = +m[3], failed = +m[2];
+    return [
+      ["Test cases", total],
+      ["Passed", total - failed],
+      ["Failed", failed],
+      ["ctest exit code", exit[2] ?? "—"],
+    ];
+  }
+
+  let cur = 0, steps = [], si = 0, phase = "pre", ci = 0, oi = 0;
+  let playing = true, timer = null, stickBottom = true;
+
+  screen.addEventListener("scroll", () => {
+    stickBottom = screen.scrollTop + screen.clientHeight >= screen.scrollHeight - 30;
+  });
+  const follow = () => { if (stickBottom) screen.scrollTop = screen.scrollHeight; };
+  const speed = () => +$("speed").value;
+
+  function renderTabs() {
+    $("tabs").innerHTML = "";
+    SESSIONS.forEach((s, i) => {
+      const b = document.createElement("button");
+      b.role = "tab";
+      b.setAttribute("aria-selected", i === cur);
+      b.innerHTML = `<span class="dot" style="background:${s.id === "buggy" ? "var(--bad)" : "var(--ok)"}"></span>`;
+      b.append(s.label);
+      b.onclick = () => load(i);
+      $("tabs").append(b);
+    });
+  }
+  function renderSteps() {
+    $("steps").innerHTML = "";
+    steps.forEach((st, i) => {
+      if (!st.cmd) return;
+      const b = document.createElement("button");
+      b.textContent = st.cmd.replace(/^\.\/[\w-]+\//, "./").replace(/ --output-on-failure$/, "");
+      b.title = st.cmd;
+      b.className = i < si ? "done" : i === si ? "now" : "";
+      b.onclick = () => jumpTo(i);
+      $("steps").append(b);
+    });
+  }
+  function renderSummary() {
+    $("summary").innerHTML = stats(SESSIONS[cur].text)
+      .map(([k, v]) => `<div><small>${k}</small><b>${v}</b></div>`).join("");
+  }
+
+  // Draw steps [0, upto) instantly.
+  function drawInstant(upto) {
+    screen.innerHTML = "";
+    for (let i = 0; i < upto; i++) {
+      const st = steps[i];
+      (st.pre || []).forEach(l => screen.append(lineEl(l, classFor(l))));
+      if (st.cmd) screen.append(promptEl(st.cmd));
+      st.out.forEach(l => screen.append(lineEl(l, classFor(l))));
+    }
+  }
+
+  function load(i) {
+    cur = i;
+    steps = parse(SESSIONS[i].text);
+    $("title").textContent = "~/ee-mortgage — " + SESSIONS[i].label;
+    renderTabs(); renderSummary();
+    jumpTo(0);
+  }
+  function jumpTo(i) {
+    clearTimeout(timer);
+    drawInstant(i);
+    si = i; phase = "pre"; ci = 0; oi = 0; stickBottom = true;
+    renderSteps(); follow();
+    setPlaying(true);
+  }
+  function toEnd() {
+    clearTimeout(timer);
+    drawInstant(steps.length);
+    si = steps.length; renderSteps(); stickBottom = true; follow();
+    setPlaying(false);
+  }
+  function setPlaying(p) {
+    playing = p && si < steps.length;
+    $("play").textContent = playing ? "⏸ Pause" : "▶ Play";
+    clearTimeout(timer);
+    if (playing) tick();
+  }
+
+  let typing = null;
+  function tick() {
+    if (!playing) return;
+    if (si >= steps.length) {
+      screen.append(promptEl("")).lastChild.insertAdjacentHTML("beforeend", '<span class="cursor">&nbsp;</span>');
+      follow(); setPlaying(false); return;
+    }
+    const st = steps[si], k = speed();
+    let delay = 0;
+
+    if (phase === "pre") {
+      (st.pre || []).forEach(l => screen.append(lineEl(l, classFor(l))));
+      phase = st.cmd ? "type" : "out";
+      if (st.cmd) { typing = promptEl(""); screen.append(typing); }
+      delay = st.cmd ? 350 : 0;
+    } else if (phase === "type") {
+      ci++;
+      typing.lastChild.textContent = st.cmd.slice(0, ci);
+      if (ci >= st.cmd.length) { phase = "run"; delay = 450; }
+      else delay = 28 + Math.random() * 40;
+    } else if (phase === "run") {
+      phase = "out"; delay = 250;
+    } else {
+      // Stream output in small batches; build/config noise goes faster than
+      // test results so the interesting part gets the screen time.
+      const batch = Math.max(1, Math.round(k >= 10 ? 40 : 2 * k));
+      for (let n = 0; n < batch && oi < st.out.length; n++, oi++) {
+        const l = st.out[oi];
+        screen.append(lineEl(l, classFor(l)));
+      }
+      const last = st.out[oi - 1] || "";
+      delay = /^(-- |\[\s*\d+%\])/.test(last) ? 18 : /FAILED|Failure/.test(last) ? 110 : 45;
+      if (oi >= st.out.length) { si++; phase = "pre"; ci = 0; oi = 0; renderSteps(); delay = 700; }
+    }
+    follow();
+    timer = setTimeout(tick, delay / k);
+  }
+
+  $("play").onclick = () => setPlaying(!playing);
+  $("restart").onclick = () => jumpTo(0);
+  $("skip").onclick = toEnd;
+  document.addEventListener("keydown", e => {
+    if (e.target.tagName === "SELECT") return;
+    if (e.key === " ") { e.preventDefault(); setPlaying(!playing); }
+    else if (e.key === "r") jumpTo(0);
+    else if (e.key === "e") toEnd();
+    else if (e.key === "1" || e.key === "2") load(+e.key - 1);
+  });
+
+  load(0);
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) toEnd();
+})();
+</script>
+</body>
+</html>

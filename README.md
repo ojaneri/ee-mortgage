@@ -66,7 +66,10 @@ docs/
   Apresentacao_FunctionalTesting_Project1_UTFPR.pptx  the class presentation (pt-BR)
   run_correct.txt           full transcript: configure, build, ctest, each binary (GREEN)
   run_buggy.txt             the same commands with -DUSE_BUGGY=ON (RED)
+  console.html              replays both transcripts in a simulated terminal
+                            (generated: python3 tools/build_console.py)
 tools/check_test_names.py   fails the build if the docs name a test that is gone
+tools/build_console.py      regenerates docs/console.html from the transcripts
 .github/workflows/ci.yml
 ```
 
