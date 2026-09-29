@@ -62,6 +62,8 @@ requirements/
   buggy_defects.md          what each planted bug is and how to catch it
   test_evidence.md          console output from the red and green runs
 tests/                      one file per technique
+docs/
+  Apresentacao_FunctionalTesting_Project1_UTFPR.pptx  the class presentation (pt-BR)
 tools/check_test_names.py   fails the build if the docs name a test that is gone
 .github/workflows/ci.yml
 ```
