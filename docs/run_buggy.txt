@@ -1,0 +1,1476 @@
+Mortgage Testing Lab — buggy implementation (src/mortgage_buggy.cpp), expected RED
+Osvaldo Janeri Filho <janeri@gmail.com>
+Marcos Klosowski Junior <marcosj.2017@alunos.utfpr.edu.br>
+
+Date: 2026-09-29 01:21 UTC   Commit: 966b82f
+Host: Ubuntu 24.04.4 LTS, g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0, cmake version 3.28.3
+
+==============================================================================
+ 1. Configure
+==============================================================================
+$ cmake -S . -B build-buggy -DUSE_BUGGY=ON
+-- The CXX compiler identification is GNU 13.3.0
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- mortgage: linking the BUGGY implementation (expect failures)
+-- The C compiler identification is GNU 13.3.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE  
+-- Configuring done (2.3s)
+-- Generating done (0.0s)
+-- Build files have been written to: /root/ee/mortgate/ee-mortgage/build-buggy
+[exit code: 0]
+
+==============================================================================
+ 2. Build
+==============================================================================
+$ cmake --build build-buggy --parallel
+[  5%] Building CXX object CMakeFiles/mortgage.dir/src/mortgage_buggy.cpp.o
+[ 11%] Building CXX object _deps/googletest-build/googletest/CMakeFiles/gtest.dir/src/gtest-all.cc.o
+[ 16%] Linking CXX static library libmortgage.a
+[ 16%] Built target mortgage
+[ 22%] Linking CXX static library ../../../lib/libgtest.a
+[ 22%] Built target gtest
+[ 27%] Building CXX object _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/src/gtest_main.cc.o
+[ 33%] Building CXX object _deps/googletest-build/googlemock/CMakeFiles/gmock.dir/src/gmock-all.cc.o
+[ 38%] Linking CXX static library ../../../lib/libgtest_main.a
+[ 38%] Built target gtest_main
+[ 55%] Building CXX object CMakeFiles/boundary_test.dir/tests/boundary_test.cpp.o
+[ 55%] Building CXX object CMakeFiles/equivalence_test.dir/tests/equivalence_test.cpp.o
+[ 55%] Building CXX object CMakeFiles/robustness_test.dir/tests/robustness_test.cpp.o
+[ 61%] Building CXX object CMakeFiles/nominal_test.dir/tests/nominal_test.cpp.o
+[ 66%] Linking CXX static library ../../../lib/libgmock.a
+[ 66%] Built target gmock
+[ 72%] Building CXX object _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/src/gmock_main.cc.o
+[ 77%] Linking CXX executable nominal_test
+[ 83%] Linking CXX executable boundary_test
+[ 88%] Linking CXX executable equivalence_test
+[ 94%] Linking CXX executable robustness_test
+[ 94%] Built target nominal_test
+[ 94%] Built target boundary_test
+[ 94%] Built target equivalence_test
+[ 94%] Built target robustness_test
+[100%] Linking CXX static library ../../../lib/libgmock_main.a
+[100%] Built target gmock_main
+[exit code: 0]
+
+==============================================================================
+ 3. Run the suite through CTest
+==============================================================================
+$ ctest --test-dir build-buggy --output-on-failure
+Internal ctest changing into directory: /root/ee/mortgate/ee-mortgage/build-buggy
+Test project /root/ee/mortgate/ee-mortgage/build-buggy
+      Start  1: NominalMale.R4_MaleAgeInsideYoungBand_AppliesFactor75
+ 1/43 Test  #1: NominalMale.R4_MaleAgeInsideYoungBand_AppliesFactor75 ...................   Passed    0.00 sec
+      Start  2: NominalMale.R4_MaleAgeInsideMiddleBand_AppliesFactor55
+ 2/43 Test  #2: NominalMale.R4_MaleAgeInsideMiddleBand_AppliesFactor55 ..................***Failed    0.00 sec
+Running main() from /root/ee/mortgate/ee-mortgage/build-buggy/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = NominalMale.R4_MaleAgeInsideMiddleBand_AppliesFactor55
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from NominalMale
+[ RUN      ] NominalMale.R4_MaleAgeInsideMiddleBand_AppliesFactor55
+/root/ee/mortgate/ee-mortgage/tests/nominal_test.cpp:53: Failure
+Expected equality of these values:
+  mortgage(Gender::Male, 40, kSalary)
+    Which is: 30000
+  55 * kSalary
+    Which is: 55000
+
+[  FAILED  ] NominalMale.R4_MaleAgeInsideMiddleBand_AppliesFactor55 (0 ms)
+[----------] 1 test from NominalMale (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] NominalMale.R4_MaleAgeInsideMiddleBand_AppliesFactor55
+
+ 1 FAILED TEST
+
+      Start  3: NominalMale.R4_MaleAgeInsideSeniorBand_AppliesFactor30
+ 3/43 Test  #3: NominalMale.R4_MaleAgeInsideSeniorBand_AppliesFactor30 ..................   Passed    0.00 sec
+      Start  4: NominalFemale.R5_FemaleAgeInsideYoungBand_AppliesFactor70
+ 4/43 Test  #4: NominalFemale.R5_FemaleAgeInsideYoungBand_AppliesFactor70 ...............***Failed    0.00 sec
+Running main() from /root/ee/mortgate/ee-mortgage/build-buggy/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = NominalFemale.R5_FemaleAgeInsideYoungBand_AppliesFactor70
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from NominalFemale
+[ RUN      ] NominalFemale.R5_FemaleAgeInsideYoungBand_AppliesFactor70
+/root/ee/mortgate/ee-mortgage/tests/nominal_test.cpp:72: Failure
+Expected equality of these values:
+  mortgage(Gender::Female, 25, kSalary)
+    Which is: 75000
+  70 * kSalary
+    Which is: 70000
+
+[  FAILED  ] NominalFemale.R5_FemaleAgeInsideYoungBand_AppliesFactor70 (0 ms)
+[----------] 1 test from NominalFemale (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] NominalFemale.R5_FemaleAgeInsideYoungBand_AppliesFactor70
+
+ 1 FAILED TEST
+
+      Start  5: NominalFemale.R5_FemaleAgeInsideMiddleBand_AppliesFactor50
+ 5/43 Test  #5: NominalFemale.R5_FemaleAgeInsideMiddleBand_AppliesFactor50 ..............   Passed    0.00 sec
+      Start  6: NominalFemale.R5_FemaleAgeInsideSeniorBand_AppliesFactor35
+ 6/43 Test  #6: NominalFemale.R5_FemaleAgeInsideSeniorBand_AppliesFactor35 ..............   Passed    0.00 sec
+      Start  7: NominalArithmetic.R7_MortgageIsSalaryTimesApplicableFactor
+ 7/43 Test  #7: NominalArithmetic.R7_MortgageIsSalaryTimesApplicableFactor ..............   Passed    0.00 sec
+      Start  8: BoundaryMale.R4_MaleAtLowerDomainEdge18_StillGetsFactor75
+ 8/43 Test  #8: BoundaryMale.R4_MaleAtLowerDomainEdge18_StillGetsFactor75 ...............***Failed    0.00 sec
+Running main() from /root/ee/mortgate/ee-mortgage/build-buggy/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = BoundaryMale.R4_MaleAtLowerDomainEdge18_StillGetsFactor75
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from BoundaryMale
+[ RUN      ] BoundaryMale.R4_MaleAtLowerDomainEdge18_StillGetsFactor75
+/root/ee/mortgate/ee-mortgage/tests/boundary_test.cpp:50: Failure
+Expected equality of these values:
+  mortgage(Gender::Male, 18, kSalary)
+    Which is: 30000
+  75 * kSalary
+    Which is: 75000
+
+[  FAILED  ] BoundaryMale.R4_MaleAtLowerDomainEdge18_StillGetsFactor75 (0 ms)
+[----------] 1 test from BoundaryMale (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] BoundaryMale.R4_MaleAtLowerDomainEdge18_StillGetsFactor75
+
+ 1 FAILED TEST
+
+      Start  9: BoundaryMale.R4_MaleAtUpperEdgeOfYoungBand35_StillGetsFactor75
+ 9/43 Test  #9: BoundaryMale.R4_MaleAtUpperEdgeOfYoungBand35_StillGetsFactor75 ..........***Failed    0.00 sec
+Running main() from /root/ee/mortgate/ee-mortgage/build-buggy/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = BoundaryMale.R4_MaleAtUpperEdgeOfYoungBand35_StillGetsFactor75
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from BoundaryMale
+[ RUN      ] BoundaryMale.R4_MaleAtUpperEdgeOfYoungBand35_StillGetsFactor75
+/root/ee/mortgate/ee-mortgage/tests/boundary_test.cpp:60: Failure
+Expected equality of these values:
+  mortgage(Gender::Male, 35, kSalary)
+    Which is: 55000
+  75 * kSalary
+    Which is: 75000
+
+[  FAILED  ] BoundaryMale.R4_MaleAtUpperEdgeOfYoungBand35_StillGetsFactor75 (0 ms)
+[----------] 1 test from BoundaryMale (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] BoundaryMale.R4_MaleAtUpperEdgeOfYoungBand35_StillGetsFactor75
+
+ 1 FAILED TEST
+
+      Start 10: BoundaryMale.R4_MaleJustInsideMiddleBandAt36_GetsFactor55
+10/43 Test #10: BoundaryMale.R4_MaleJustInsideMiddleBandAt36_GetsFactor55 ...............   Passed    0.00 sec
+      Start 11: BoundaryMale.R4_MaleAtUpperEdgeOfMiddleBand45_StillGetsFactor55
+11/43 Test #11: BoundaryMale.R4_MaleAtUpperEdgeOfMiddleBand45_StillGetsFactor55 .........***Failed    0.00 sec
+Running main() from /root/ee/mortgate/ee-mortgage/build-buggy/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = BoundaryMale.R4_MaleAtUpperEdgeOfMiddleBand45_StillGetsFactor55
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from BoundaryMale
+[ RUN      ] BoundaryMale.R4_MaleAtUpperEdgeOfMiddleBand45_StillGetsFactor55
+/root/ee/mortgate/ee-mortgage/tests/boundary_test.cpp:74: Failure
+Expected equality of these values:
+  mortgage(Gender::Male, 45, kSalary)
+    Which is: 30000
+  55 * kSalary
+    Which is: 55000
+
+[  FAILED  ] BoundaryMale.R4_MaleAtUpperEdgeOfMiddleBand45_StillGetsFactor55 (0 ms)
+[----------] 1 test from BoundaryMale (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] BoundaryMale.R4_MaleAtUpperEdgeOfMiddleBand45_StillGetsFactor55
+
+ 1 FAILED TEST
+
+      Start 12: BoundaryMale.R4_MaleJustInsideSeniorBandAt46_GetsFactor30
+12/43 Test #12: BoundaryMale.R4_MaleJustInsideSeniorBandAt46_GetsFactor30 ...............   Passed    0.00 sec
+      Start 13: BoundaryMale.R4_MaleAtUpperDomainEdge55_GetsFactor30
+13/43 Test #13: BoundaryMale.R4_MaleAtUpperDomainEdge55_GetsFactor30 ....................   Passed    0.00 sec
+      Start 14: BoundaryFemale.R5_FemaleAtLowerDomainEdge18_GetsFactor70
+14/43 Test #14: BoundaryFemale.R5_FemaleAtLowerDomainEdge18_GetsFactor70 ................***Failed    0.00 sec
+Running main() from /root/ee/mortgate/ee-mortgage/build-buggy/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = BoundaryFemale.R5_FemaleAtLowerDomainEdge18_GetsFactor70
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from BoundaryFemale
+[ RUN      ] BoundaryFemale.R5_FemaleAtLowerDomainEdge18_GetsFactor70
+/root/ee/mortgate/ee-mortgage/tests/boundary_test.cpp:98: Failure
+Expected equality of these values:
+  mortgage(Gender::Female, 18, kSalary)
+    Which is: 35000
+  70 * kSalary
+    Which is: 70000
+
+[  FAILED  ] BoundaryFemale.R5_FemaleAtLowerDomainEdge18_GetsFactor70 (0 ms)
+[----------] 1 test from BoundaryFemale (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] BoundaryFemale.R5_FemaleAtLowerDomainEdge18_GetsFactor70
+
+ 1 FAILED TEST
+
+      Start 15: BoundaryFemale.R5_FemaleAtUpperEdgeOfYoungBand30_StillGetsFactor70
+15/43 Test #15: BoundaryFemale.R5_FemaleAtUpperEdgeOfYoungBand30_StillGetsFactor70 ......***Failed    0.00 sec
+Running main() from /root/ee/mortgate/ee-mortgage/build-buggy/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = BoundaryFemale.R5_FemaleAtUpperEdgeOfYoungBand30_StillGetsFactor70
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from BoundaryFemale
+[ RUN      ] BoundaryFemale.R5_FemaleAtUpperEdgeOfYoungBand30_StillGetsFactor70
+/root/ee/mortgate/ee-mortgage/tests/boundary_test.cpp:108: Failure
+Expected equality of these values:
+  mortgage(Gender::Female, 30, kSalary)
+    Which is: 35000
+  70 * kSalary
+    Which is: 70000
+
+[  FAILED  ] BoundaryFemale.R5_FemaleAtUpperEdgeOfYoungBand30_StillGetsFactor70 (0 ms)
+[----------] 1 test from BoundaryFemale (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] BoundaryFemale.R5_FemaleAtUpperEdgeOfYoungBand30_StillGetsFactor70
+
+ 1 FAILED TEST
+
+      Start 16: BoundaryFemale.R5_FemaleAtLowerEdgeOfMiddleBand31_GetsFactor50
+16/43 Test #16: BoundaryFemale.R5_FemaleAtLowerEdgeOfMiddleBand31_GetsFactor50 ..........***Failed    0.00 sec
+Running main() from /root/ee/mortgate/ee-mortgage/build-buggy/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = BoundaryFemale.R5_FemaleAtLowerEdgeOfMiddleBand31_GetsFactor50
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from BoundaryFemale
+[ RUN      ] BoundaryFemale.R5_FemaleAtLowerEdgeOfMiddleBand31_GetsFactor50
+/root/ee/mortgate/ee-mortgage/tests/boundary_test.cpp:113: Failure
+Expected equality of these values:
+  mortgage(Gender::Female, 31, kSalary)
+    Which is: 35000
+  50 * kSalary
+    Which is: 50000
+
+[  FAILED  ] BoundaryFemale.R5_FemaleAtLowerEdgeOfMiddleBand31_GetsFactor50 (0 ms)
+[----------] 1 test from BoundaryFemale (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] BoundaryFemale.R5_FemaleAtLowerEdgeOfMiddleBand31_GetsFactor50
+
+ 1 FAILED TEST
+
+      Start 17: BoundaryFemale.R5_FemaleAtUpperEdgeOfMiddleBand40_StillGetsFactor50
+17/43 Test #17: BoundaryFemale.R5_FemaleAtUpperEdgeOfMiddleBand40_StillGetsFactor50 .....***Failed    0.00 sec
+Running main() from /root/ee/mortgate/ee-mortgage/build-buggy/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = BoundaryFemale.R5_FemaleAtUpperEdgeOfMiddleBand40_StillGetsFactor50
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from BoundaryFemale
+[ RUN      ] BoundaryFemale.R5_FemaleAtUpperEdgeOfMiddleBand40_StillGetsFactor50
+/root/ee/mortgate/ee-mortgage/tests/boundary_test.cpp:118: Failure
+Expected equality of these values:
+  mortgage(Gender::Female, 40, kSalary)
+    Which is: 35000
+  50 * kSalary
+    Which is: 50000
+
+[  FAILED  ] BoundaryFemale.R5_FemaleAtUpperEdgeOfMiddleBand40_StillGetsFactor50 (0 ms)
+[----------] 1 test from BoundaryFemale (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] BoundaryFemale.R5_FemaleAtUpperEdgeOfMiddleBand40_StillGetsFactor50
+
+ 1 FAILED TEST
+
+      Start 18: BoundaryFemale.R5_FemaleAtLowerEdgeOfSeniorBand41_GetsFactor35
+18/43 Test #18: BoundaryFemale.R5_FemaleAtLowerEdgeOfSeniorBand41_GetsFactor35 ..........   Passed    0.00 sec
+      Start 19: BoundaryFemale.R5_FemaleAtUpperEdgeOfSeniorBand50_GetsFactor35
+19/43 Test #19: BoundaryFemale.R5_FemaleAtUpperEdgeOfSeniorBand50_GetsFactor35 ..........   Passed    0.00 sec
+      Start 20: BoundaryFemale.R5_FemaleAtFirstAgeOfUndefinedBand51_IsRejected
+20/43 Test #20: BoundaryFemale.R5_FemaleAtFirstAgeOfUndefinedBand51_IsRejected ..........***Failed    0.00 sec
+Running main() from /root/ee/mortgate/ee-mortgage/build-buggy/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = BoundaryFemale.R5_FemaleAtFirstAgeOfUndefinedBand51_IsRejected
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from BoundaryFemale
+[ RUN      ] BoundaryFemale.R5_FemaleAtFirstAgeOfUndefinedBand51_IsRejected
+/root/ee/mortgate/ee-mortgage/tests/boundary_test.cpp:144: Failure
+Expected: mortgage(Gender::Female, 51, kSalary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+
+[  FAILED  ] BoundaryFemale.R5_FemaleAtFirstAgeOfUndefinedBand51_IsRejected (0 ms)
+[----------] 1 test from BoundaryFemale (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] BoundaryFemale.R5_FemaleAtFirstAgeOfUndefinedBand51_IsRejected
+
+ 1 FAILED TEST
+
+      Start 21: BoundarySalary.R3_SalaryAtLowerDomainEdgeZero_IsAcceptedAndYieldsZero
+21/43 Test #21: BoundarySalary.R3_SalaryAtLowerDomainEdgeZero_IsAcceptedAndYieldsZero ...   Passed    0.00 sec
+      Start 22: BoundarySalary.R3_SalaryJustAboveZero_IsAccepted
+22/43 Test #22: BoundarySalary.R3_SalaryJustAboveZero_IsAccepted ........................   Passed    0.00 sec
+      Start 23: BoundarySalary.R3_SalaryAtUpperDomainEdge10000_IsAccepted
+23/43 Test #23: BoundarySalary.R3_SalaryAtUpperDomainEdge10000_IsAccepted ...............   Passed    0.00 sec
+      Start 24: BoundarySalary.R3_SalaryJustBelowUpperEdge9999_IsAccepted
+24/43 Test #24: BoundarySalary.R3_SalaryJustBelowUpperEdge9999_IsAccepted ...............   Passed    0.00 sec
+      Start 25: BoundaryAge.R2_AgeJustBelowLowerDomainEdge17_IsRejected
+25/43 Test #25: BoundaryAge.R2_AgeJustBelowLowerDomainEdge17_IsRejected .................***Failed    0.00 sec
+Running main() from /root/ee/mortgate/ee-mortgage/build-buggy/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = BoundaryAge.R2_AgeJustBelowLowerDomainEdge17_IsRejected
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from BoundaryAge
+[ RUN      ] BoundaryAge.R2_AgeJustBelowLowerDomainEdge17_IsRejected
+/root/ee/mortgate/ee-mortgage/tests/boundary_test.cpp:187: Failure
+Expected: mortgage(Gender::Male, 17, kSalary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+
+[  FAILED  ] BoundaryAge.R2_AgeJustBelowLowerDomainEdge17_IsRejected (0 ms)
+[----------] 1 test from BoundaryAge (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] BoundaryAge.R2_AgeJustBelowLowerDomainEdge17_IsRejected
+
+ 1 FAILED TEST
+
+      Start 26: BoundaryAge.R2_AgeJustAboveUpperDomainEdge56_IsRejected
+26/43 Test #26: BoundaryAge.R2_AgeJustAboveUpperDomainEdge56_IsRejected .................***Failed    0.00 sec
+Running main() from /root/ee/mortgate/ee-mortgage/build-buggy/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = BoundaryAge.R2_AgeJustAboveUpperDomainEdge56_IsRejected
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from BoundaryAge
+[ RUN      ] BoundaryAge.R2_AgeJustAboveUpperDomainEdge56_IsRejected
+/root/ee/mortgate/ee-mortgage/tests/boundary_test.cpp:192: Failure
+Expected: mortgage(Gender::Male, 56, kSalary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+
+[  FAILED  ] BoundaryAge.R2_AgeJustAboveUpperDomainEdge56_IsRejected (0 ms)
+[----------] 1 test from BoundaryAge (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] BoundaryAge.R2_AgeJustAboveUpperDomainEdge56_IsRejected
+
+ 1 FAILED TEST
+
+      Start 27: RobustnessAge.R2R6_AgeBelowMinimum_ThrowsOutOfRange
+27/43 Test #27: RobustnessAge.R2R6_AgeBelowMinimum_ThrowsOutOfRange .....................***Failed    0.00 sec
+Running main() from /root/ee/mortgate/ee-mortgage/build-buggy/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = RobustnessAge.R2R6_AgeBelowMinimum_ThrowsOutOfRange
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from RobustnessAge
+[ RUN      ] RobustnessAge.R2R6_AgeBelowMinimum_ThrowsOutOfRange
+/root/ee/mortgate/ee-mortgage/tests/robustness_test.cpp:87: Failure
+Expected: mortgage(Gender::Male, 17, kSalary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+
+/root/ee/mortgate/ee-mortgage/tests/robustness_test.cpp:88: Failure
+Expected: mortgage(Gender::Female, 17, kSalary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+
+[  FAILED  ] RobustnessAge.R2R6_AgeBelowMinimum_ThrowsOutOfRange (0 ms)
+[----------] 1 test from RobustnessAge (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] RobustnessAge.R2R6_AgeBelowMinimum_ThrowsOutOfRange
+
+ 1 FAILED TEST
+
+      Start 28: RobustnessAge.R2R6_AgeAboveMaximum_ThrowsOutOfRange
+28/43 Test #28: RobustnessAge.R2R6_AgeAboveMaximum_ThrowsOutOfRange .....................***Failed    0.00 sec
+Running main() from /root/ee/mortgate/ee-mortgage/build-buggy/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = RobustnessAge.R2R6_AgeAboveMaximum_ThrowsOutOfRange
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from RobustnessAge
+[ RUN      ] RobustnessAge.R2R6_AgeAboveMaximum_ThrowsOutOfRange
+/root/ee/mortgate/ee-mortgage/tests/robustness_test.cpp:93: Failure
+Expected: mortgage(Gender::Male, 56, kSalary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+
+/root/ee/mortgate/ee-mortgage/tests/robustness_test.cpp:94: Failure
+Expected: mortgage(Gender::Female, 56, kSalary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+
+[  FAILED  ] RobustnessAge.R2R6_AgeAboveMaximum_ThrowsOutOfRange (0 ms)
+[----------] 1 test from RobustnessAge (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] RobustnessAge.R2R6_AgeAboveMaximum_ThrowsOutOfRange
+
+ 1 FAILED TEST
+
+      Start 29: RobustnessAge.R2R6_GrosslyInvalidAges_ThrowOutOfRange
+29/43 Test #29: RobustnessAge.R2R6_GrosslyInvalidAges_ThrowOutOfRange ...................***Failed    0.00 sec
+Running main() from /root/ee/mortgate/ee-mortgage/build-buggy/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = RobustnessAge.R2R6_GrosslyInvalidAges_ThrowOutOfRange
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from RobustnessAge
+[ RUN      ] RobustnessAge.R2R6_GrosslyInvalidAges_ThrowOutOfRange
+/root/ee/mortgate/ee-mortgage/tests/robustness_test.cpp:108: Failure
+Expected: mortgage(Gender::Male, -1, kSalary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+
+/root/ee/mortgate/ee-mortgage/tests/robustness_test.cpp:109: Failure
+Expected: mortgage(Gender::Male, 0, kSalary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+
+/root/ee/mortgate/ee-mortgage/tests/robustness_test.cpp:110: Failure
+Expected: mortgage(Gender::Female, 0x7fffffff, kSalary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+
+/root/ee/mortgate/ee-mortgage/tests/robustness_test.cpp:111: Failure
+Expected: mortgage(Gender::Female, (-0x7fffffff - 1), kSalary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+
+[  FAILED  ] RobustnessAge.R2R6_GrosslyInvalidAges_ThrowOutOfRange (0 ms)
+[----------] 1 test from RobustnessAge (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] RobustnessAge.R2R6_GrosslyInvalidAges_ThrowOutOfRange
+
+ 1 FAILED TEST
+
+      Start 30: RobustnessSalary.R3R6_NegativeSalary_ThrowsOutOfRange
+30/43 Test #30: RobustnessSalary.R3R6_NegativeSalary_ThrowsOutOfRange ...................***Failed    0.00 sec
+Running main() from /root/ee/mortgate/ee-mortgage/build-buggy/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = RobustnessSalary.R3R6_NegativeSalary_ThrowsOutOfRange
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from RobustnessSalary
+[ RUN      ] RobustnessSalary.R3R6_NegativeSalary_ThrowsOutOfRange
+/root/ee/mortgate/ee-mortgage/tests/robustness_test.cpp:124: Failure
+Expected: mortgage(Gender::Male, kAge, -1) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+
+/root/ee/mortgate/ee-mortgage/tests/robustness_test.cpp:125: Failure
+Expected: mortgage(Gender::Female, kAge, -100000) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+
+[  FAILED  ] RobustnessSalary.R3R6_NegativeSalary_ThrowsOutOfRange (0 ms)
+[----------] 1 test from RobustnessSalary (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] RobustnessSalary.R3R6_NegativeSalary_ThrowsOutOfRange
+
+ 1 FAILED TEST
+
+      Start 31: RobustnessSalary.R3R6_SalaryAboveMaximum_ThrowsOutOfRange
+31/43 Test #31: RobustnessSalary.R3R6_SalaryAboveMaximum_ThrowsOutOfRange ...............***Failed    0.00 sec
+Running main() from /root/ee/mortgate/ee-mortgage/build-buggy/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = RobustnessSalary.R3R6_SalaryAboveMaximum_ThrowsOutOfRange
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from RobustnessSalary
+[ RUN      ] RobustnessSalary.R3R6_SalaryAboveMaximum_ThrowsOutOfRange
+/root/ee/mortgate/ee-mortgage/tests/robustness_test.cpp:130: Failure
+Expected: mortgage(Gender::Male, kAge, 10001) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+
+/root/ee/mortgate/ee-mortgage/tests/robustness_test.cpp:131: Failure
+Expected: mortgage(Gender::Female, kAge, kAbsurdSalary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+
+[  FAILED  ] RobustnessSalary.R3R6_SalaryAboveMaximum_ThrowsOutOfRange (0 ms)
+[----------] 1 test from RobustnessSalary (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] RobustnessSalary.R3R6_SalaryAboveMaximum_ThrowsOutOfRange
+
+ 1 FAILED TEST
+
+      Start 32: RobustnessSpecGap.R5R6_FemaleInUndefinedBand_ThrowsOutOfRange
+32/43 Test #32: RobustnessSpecGap.R5R6_FemaleInUndefinedBand_ThrowsOutOfRange ...........***Failed    0.00 sec
+Running main() from /root/ee/mortgate/ee-mortgage/build-buggy/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = RobustnessSpecGap.R5R6_FemaleInUndefinedBand_ThrowsOutOfRange
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from RobustnessSpecGap
+[ RUN      ] RobustnessSpecGap.R5R6_FemaleInUndefinedBand_ThrowsOutOfRange
+/root/ee/mortgate/ee-mortgage/tests/robustness_test.cpp:151: Failure
+Expected: mortgage(Gender::Female, age, kSalary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+woman aged 51 should be refused, not priced
+
+/root/ee/mortgate/ee-mortgage/tests/robustness_test.cpp:151: Failure
+Expected: mortgage(Gender::Female, age, kSalary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+woman aged 52 should be refused, not priced
+
+/root/ee/mortgate/ee-mortgage/tests/robustness_test.cpp:151: Failure
+Expected: mortgage(Gender::Female, age, kSalary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+woman aged 53 should be refused, not priced
+
+/root/ee/mortgate/ee-mortgage/tests/robustness_test.cpp:151: Failure
+Expected: mortgage(Gender::Female, age, kSalary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+woman aged 54 should be refused, not priced
+
+/root/ee/mortgate/ee-mortgage/tests/robustness_test.cpp:151: Failure
+Expected: mortgage(Gender::Female, age, kSalary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+woman aged 55 should be refused, not priced
+
+[  FAILED  ] RobustnessSpecGap.R5R6_FemaleInUndefinedBand_ThrowsOutOfRange (0 ms)
+[----------] 1 test from RobustnessSpecGap (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] RobustnessSpecGap.R5R6_FemaleInUndefinedBand_ThrowsOutOfRange
+
+ 1 FAILED TEST
+
+      Start 33: RobustnessSpecGap.R5R6_MaleInSameAgeBandIsStillPriced
+33/43 Test #33: RobustnessSpecGap.R5R6_MaleInSameAgeBandIsStillPriced ...................   Passed    0.00 sec
+      Start 34: RobustnessWorstCase.R6_AgeAndSalaryBothInvalid_ThrowsOutOfRange
+34/43 Test #34: RobustnessWorstCase.R6_AgeAndSalaryBothInvalid_ThrowsOutOfRange .........***Failed    0.00 sec
+Running main() from /root/ee/mortgate/ee-mortgage/build-buggy/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = RobustnessWorstCase.R6_AgeAndSalaryBothInvalid_ThrowsOutOfRange
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from RobustnessWorstCase
+[ RUN      ] RobustnessWorstCase.R6_AgeAndSalaryBothInvalid_ThrowsOutOfRange
+/root/ee/mortgate/ee-mortgage/tests/robustness_test.cpp:185: Failure
+Expected: mortgage(Gender::Male, 17, -1) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+
+/root/ee/mortgate/ee-mortgage/tests/robustness_test.cpp:186: Failure
+Expected: mortgage(Gender::Female, 99, 999999) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+
+[  FAILED  ] RobustnessWorstCase.R6_AgeAndSalaryBothInvalid_ThrowsOutOfRange (0 ms)
+[----------] 1 test from RobustnessWorstCase (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] RobustnessWorstCase.R6_AgeAndSalaryBothInvalid_ThrowsOutOfRange
+
+ 1 FAILED TEST
+
+      Start 35: RejectionReason.R2R6_AgeOutOfRangeSaysSo
+35/43 Test #35: RejectionReason.R2R6_AgeOutOfRangeSaysSo ................................***Failed    0.00 sec
+Running main() from /root/ee/mortgate/ee-mortgage/build-buggy/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = RejectionReason.R2R6_AgeOutOfRangeSaysSo
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from RejectionReason
+[ RUN      ] RejectionReason.R2R6_AgeOutOfRangeSaysSo
+/root/ee/mortgate/ee-mortgage/tests/robustness_test.cpp:202: Failure
+Value of: mentions(reason, "age out of range")
+  Actual: false
+Expected: true
+got: 
+
+/root/ee/mortgate/ee-mortgage/tests/robustness_test.cpp:202: Failure
+Value of: mentions(reason, "age out of range")
+  Actual: false
+Expected: true
+got: 
+
+[  FAILED  ] RejectionReason.R2R6_AgeOutOfRangeSaysSo (0 ms)
+[----------] 1 test from RejectionReason (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] RejectionReason.R2R6_AgeOutOfRangeSaysSo
+
+ 1 FAILED TEST
+
+      Start 36: RejectionReason.R3R6_SalaryOutOfRangeSaysSo
+36/43 Test #36: RejectionReason.R3R6_SalaryOutOfRangeSaysSo .............................***Failed    0.00 sec
+Running main() from /root/ee/mortgate/ee-mortgage/build-buggy/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = RejectionReason.R3R6_SalaryOutOfRangeSaysSo
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from RejectionReason
+[ RUN      ] RejectionReason.R3R6_SalaryOutOfRangeSaysSo
+/root/ee/mortgate/ee-mortgage/tests/robustness_test.cpp:211: Failure
+Value of: mentions(reason, "salary out of range")
+  Actual: false
+Expected: true
+got: 
+
+/root/ee/mortgate/ee-mortgage/tests/robustness_test.cpp:211: Failure
+Value of: mentions(reason, "salary out of range")
+  Actual: false
+Expected: true
+got: 
+
+[  FAILED  ] RejectionReason.R3R6_SalaryOutOfRangeSaysSo (0 ms)
+[----------] 1 test from RejectionReason (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] RejectionReason.R3R6_SalaryOutOfRangeSaysSo
+
+ 1 FAILED TEST
+
+      Start 37: RejectionReason.R5R6_SpecGapIsNotReportedAsAnOutOfRangeAge
+37/43 Test #37: RejectionReason.R5R6_SpecGapIsNotReportedAsAnOutOfRangeAge ..............***Failed    0.00 sec
+Running main() from /root/ee/mortgate/ee-mortgage/build-buggy/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = RejectionReason.R5R6_SpecGapIsNotReportedAsAnOutOfRangeAge
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from RejectionReason
+[ RUN      ] RejectionReason.R5R6_SpecGapIsNotReportedAsAnOutOfRangeAge
+/root/ee/mortgate/ee-mortgage/tests/robustness_test.cpp:224: Failure
+Value of: mentions(reason, "specification")
+  Actual: false
+Expected: true
+got: 
+
+[  FAILED  ] RejectionReason.R5R6_SpecGapIsNotReportedAsAnOutOfRangeAge (0 ms)
+[----------] 1 test from RejectionReason (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] RejectionReason.R5R6_SpecGapIsNotReportedAsAnOutOfRangeAge
+
+ 1 FAILED TEST
+
+      Start 38: RejectionReason.R6_ValidInputProducesNoRejection
+38/43 Test #38: RejectionReason.R6_ValidInputProducesNoRejection ........................   Passed    0.00 sec
+      Start 39: WeakNormalEquivalence.R4R5R7_OneCasePerValidAgeClassIndex
+39/43 Test #39: WeakNormalEquivalence.R4R5R7_OneCasePerValidAgeClassIndex ...............   Passed    0.00 sec
+      Start 40: StrongNormalEquivalence.R4R5R7_CartesianProductOfValidClasses
+40/43 Test #40: StrongNormalEquivalence.R4R5R7_CartesianProductOfValidClasses ...........***Failed    0.00 sec
+Running main() from /root/ee/mortgate/ee-mortgage/build-buggy/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = StrongNormalEquivalence.R4R5R7_CartesianProductOfValidClasses
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from StrongNormalEquivalence
+[ RUN      ] StrongNormalEquivalence.R4R5R7_CartesianProductOfValidClasses
+/root/ee/mortgate/ee-mortgage/tests/equivalence_test.cpp:130: Failure
+Expected equality of these values:
+  mortgage(c.gender, c.age, c.salary)
+    Which is: 30000
+  c.expected
+    Which is: 55000
+G1 x A3 36-45 -> 55
+
+/root/ee/mortgate/ee-mortgage/tests/equivalence_test.cpp:130: Failure
+Expected equality of these values:
+  mortgage(c.gender, c.age, c.salary)
+    Which is: 75000
+  c.expected
+    Which is: 70000
+G2 x A2 18-30 -> 70
+
+[  FAILED  ] StrongNormalEquivalence.R4R5R7_CartesianProductOfValidClasses (0 ms)
+[----------] 1 test from StrongNormalEquivalence (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] StrongNormalEquivalence.R4R5R7_CartesianProductOfValidClasses
+
+ 1 FAILED TEST
+
+      Start 41: WeakRobustEquivalence.R2R3R5R6_OneInvalidClassAtATime
+41/43 Test #41: WeakRobustEquivalence.R2R3R5R6_OneInvalidClassAtATime ...................***Failed    0.00 sec
+Running main() from /root/ee/mortgate/ee-mortgage/build-buggy/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = WeakRobustEquivalence.R2R3R5R6_OneInvalidClassAtATime
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from WeakRobustEquivalence
+[ RUN      ] WeakRobustEquivalence.R2R3R5R6_OneInvalidClassAtATime
+/root/ee/mortgate/ee-mortgage/tests/equivalence_test.cpp:154: Failure
+Expected: mortgage(c.gender, c.age, c.salary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+A1 men, under age
+
+/root/ee/mortgate/ee-mortgage/tests/equivalence_test.cpp:154: Failure
+Expected: mortgage(c.gender, c.age, c.salary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+A5 men, over age
+
+/root/ee/mortgate/ee-mortgage/tests/equivalence_test.cpp:154: Failure
+Expected: mortgage(c.gender, c.age, c.salary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+A5 women, the 51-55 spec gap
+
+/root/ee/mortgate/ee-mortgage/tests/equivalence_test.cpp:154: Failure
+Expected: mortgage(c.gender, c.age, c.salary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+S1, negative salary
+
+/root/ee/mortgate/ee-mortgage/tests/equivalence_test.cpp:154: Failure
+Expected: mortgage(c.gender, c.age, c.salary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+S3, salary over the cap
+
+[  FAILED  ] WeakRobustEquivalence.R2R3R5R6_OneInvalidClassAtATime (0 ms)
+[----------] 1 test from WeakRobustEquivalence (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] WeakRobustEquivalence.R2R3R5R6_OneInvalidClassAtATime
+
+ 1 FAILED TEST
+
+      Start 42: StrongRobustEquivalence.R6_CartesianProductIncludingInvalidClasses
+42/43 Test #42: StrongRobustEquivalence.R6_CartesianProductIncludingInvalidClasses ......***Failed    0.00 sec
+Running main() from /root/ee/mortgate/ee-mortgage/build-buggy/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = StrongRobustEquivalence.R6_CartesianProductIncludingInvalidClasses
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from StrongRobustEquivalence
+[ RUN      ] StrongRobustEquivalence.R6_CartesianProductIncludingInvalidClasses
+/root/ee/mortgate/ee-mortgage/tests/equivalence_test.cpp:185: Failure
+Expected: mortgage(c.gender, c.age, c.salary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+A1 men x S1
+
+/root/ee/mortgate/ee-mortgage/tests/equivalence_test.cpp:185: Failure
+Expected: mortgage(c.gender, c.age, c.salary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+A1 men x S3
+
+/root/ee/mortgate/ee-mortgage/tests/equivalence_test.cpp:185: Failure
+Expected: mortgage(c.gender, c.age, c.salary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+A5 men x S1
+
+/root/ee/mortgate/ee-mortgage/tests/equivalence_test.cpp:185: Failure
+Expected: mortgage(c.gender, c.age, c.salary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+A5 men x S3
+
+/root/ee/mortgate/ee-mortgage/tests/equivalence_test.cpp:185: Failure
+Expected: mortgage(c.gender, c.age, c.salary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+A1 women x S1
+
+/root/ee/mortgate/ee-mortgage/tests/equivalence_test.cpp:185: Failure
+Expected: mortgage(c.gender, c.age, c.salary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+A1 women x S3
+
+/root/ee/mortgate/ee-mortgage/tests/equivalence_test.cpp:185: Failure
+Expected: mortgage(c.gender, c.age, c.salary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+A5 women, spec gap x S1
+
+/root/ee/mortgate/ee-mortgage/tests/equivalence_test.cpp:185: Failure
+Expected: mortgage(c.gender, c.age, c.salary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+A5 women, spec gap x S3
+
+/root/ee/mortgate/ee-mortgage/tests/equivalence_test.cpp:185: Failure
+Expected: mortgage(c.gender, c.age, c.salary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+A6 women x S1
+
+/root/ee/mortgate/ee-mortgage/tests/equivalence_test.cpp:185: Failure
+Expected: mortgage(c.gender, c.age, c.salary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+A6 women x S3
+
+[  FAILED  ] StrongRobustEquivalence.R6_CartesianProductIncludingInvalidClasses (0 ms)
+[----------] 1 test from StrongRobustEquivalence (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] StrongRobustEquivalence.R6_CartesianProductIncludingInvalidClasses
+
+ 1 FAILED TEST
+
+      Start 43: PartitionConsistency.R4R5_NoGapsOrOverlapsAcrossTheWholeAgeDomain
+43/43 Test #43: PartitionConsistency.R4R5_NoGapsOrOverlapsAcrossTheWholeAgeDomain .......***Failed    0.00 sec
+Running main() from /root/ee/mortgate/ee-mortgage/build-buggy/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = PartitionConsistency.R4R5_NoGapsOrOverlapsAcrossTheWholeAgeDomain
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from PartitionConsistency
+[ RUN      ] PartitionConsistency.R4R5_NoGapsOrOverlapsAcrossTheWholeAgeDomain
+/root/ee/mortgate/ee-mortgage/tests/equivalence_test.cpp:238: Failure
+Expected: (factor) <= (previous), actual: 75 vs 30
+factor went back up at man aged 19
+
+/root/ee/mortgate/ee-mortgage/tests/equivalence_test.cpp:238: Failure
+Expected: (factor) <= (previous), actual: 75 vs 35
+factor went back up at woman aged 19
+
+/root/ee/mortgate/ee-mortgage/tests/equivalence_test.cpp:238: Failure
+Expected: (factor) <= (previous), actual: 50 vs 35
+factor went back up at woman aged 32
+
+/root/ee/mortgate/ee-mortgage/tests/equivalence_test.cpp:229: Failure
+Expected: mortgage(g, age, 1) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+woman aged 51 falls in the spec gap
+
+/root/ee/mortgate/ee-mortgage/tests/equivalence_test.cpp:229: Failure
+Expected: mortgage(g, age, 1) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+woman aged 52 falls in the spec gap
+
+/root/ee/mortgate/ee-mortgage/tests/equivalence_test.cpp:229: Failure
+Expected: mortgage(g, age, 1) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+woman aged 53 falls in the spec gap
+
+/root/ee/mortgate/ee-mortgage/tests/equivalence_test.cpp:229: Failure
+Expected: mortgage(g, age, 1) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+woman aged 54 falls in the spec gap
+
+/root/ee/mortgate/ee-mortgage/tests/equivalence_test.cpp:229: Failure
+Expected: mortgage(g, age, 1) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+woman aged 55 falls in the spec gap
+
+[  FAILED  ] PartitionConsistency.R4R5_NoGapsOrOverlapsAcrossTheWholeAgeDomain (0 ms)
+[----------] 1 test from PartitionConsistency (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] PartitionConsistency.R4R5_NoGapsOrOverlapsAcrossTheWholeAgeDomain
+
+ 1 FAILED TEST
+
+
+40% tests passed, 26 tests failed out of 43
+
+Total Test time (real) =   0.15 sec
+
+The following tests FAILED:
+	  2 - NominalMale.R4_MaleAgeInsideMiddleBand_AppliesFactor55 (Failed)
+	  4 - NominalFemale.R5_FemaleAgeInsideYoungBand_AppliesFactor70 (Failed)
+	  8 - BoundaryMale.R4_MaleAtLowerDomainEdge18_StillGetsFactor75 (Failed)
+	  9 - BoundaryMale.R4_MaleAtUpperEdgeOfYoungBand35_StillGetsFactor75 (Failed)
+	 11 - BoundaryMale.R4_MaleAtUpperEdgeOfMiddleBand45_StillGetsFactor55 (Failed)
+	 14 - BoundaryFemale.R5_FemaleAtLowerDomainEdge18_GetsFactor70 (Failed)
+	 15 - BoundaryFemale.R5_FemaleAtUpperEdgeOfYoungBand30_StillGetsFactor70 (Failed)
+	 16 - BoundaryFemale.R5_FemaleAtLowerEdgeOfMiddleBand31_GetsFactor50 (Failed)
+	 17 - BoundaryFemale.R5_FemaleAtUpperEdgeOfMiddleBand40_StillGetsFactor50 (Failed)
+	 20 - BoundaryFemale.R5_FemaleAtFirstAgeOfUndefinedBand51_IsRejected (Failed)
+	 25 - BoundaryAge.R2_AgeJustBelowLowerDomainEdge17_IsRejected (Failed)
+	 26 - BoundaryAge.R2_AgeJustAboveUpperDomainEdge56_IsRejected (Failed)
+	 27 - RobustnessAge.R2R6_AgeBelowMinimum_ThrowsOutOfRange (Failed)
+	 28 - RobustnessAge.R2R6_AgeAboveMaximum_ThrowsOutOfRange (Failed)
+	 29 - RobustnessAge.R2R6_GrosslyInvalidAges_ThrowOutOfRange (Failed)
+	 30 - RobustnessSalary.R3R6_NegativeSalary_ThrowsOutOfRange (Failed)
+	 31 - RobustnessSalary.R3R6_SalaryAboveMaximum_ThrowsOutOfRange (Failed)
+	 32 - RobustnessSpecGap.R5R6_FemaleInUndefinedBand_ThrowsOutOfRange (Failed)
+	 34 - RobustnessWorstCase.R6_AgeAndSalaryBothInvalid_ThrowsOutOfRange (Failed)
+	 35 - RejectionReason.R2R6_AgeOutOfRangeSaysSo (Failed)
+	 36 - RejectionReason.R3R6_SalaryOutOfRangeSaysSo (Failed)
+	 37 - RejectionReason.R5R6_SpecGapIsNotReportedAsAnOutOfRangeAge (Failed)
+	 40 - StrongNormalEquivalence.R4R5R7_CartesianProductOfValidClasses (Failed)
+	 41 - WeakRobustEquivalence.R2R3R5R6_OneInvalidClassAtATime (Failed)
+	 42 - StrongRobustEquivalence.R6_CartesianProductIncludingInvalidClasses (Failed)
+	 43 - PartitionConsistency.R4R5_NoGapsOrOverlapsAcrossTheWholeAgeDomain (Failed)
+Errors while running CTest
+[exit code: 8]
+
+==============================================================================
+ 4. Run each GoogleTest binary directly (per-test detail)
+==============================================================================
+$ ./build-buggy/nominal_test
+Running main() from /root/ee/mortgate/ee-mortgage/build-buggy/_deps/googletest-src/googletest/src/gtest_main.cc
+[==========] Running 7 tests from 3 test suites.
+[----------] Global test environment set-up.
+[----------] 3 tests from NominalMale
+[ RUN      ] NominalMale.R4_MaleAgeInsideYoungBand_AppliesFactor75
+[       OK ] NominalMale.R4_MaleAgeInsideYoungBand_AppliesFactor75 (0 ms)
+[ RUN      ] NominalMale.R4_MaleAgeInsideMiddleBand_AppliesFactor55
+/root/ee/mortgate/ee-mortgage/tests/nominal_test.cpp:53: Failure
+Expected equality of these values:
+  mortgage(Gender::Male, 40, kSalary)
+    Which is: 30000
+  55 * kSalary
+    Which is: 55000
+
+[  FAILED  ] NominalMale.R4_MaleAgeInsideMiddleBand_AppliesFactor55 (0 ms)
+[ RUN      ] NominalMale.R4_MaleAgeInsideSeniorBand_AppliesFactor30
+[       OK ] NominalMale.R4_MaleAgeInsideSeniorBand_AppliesFactor30 (0 ms)
+[----------] 3 tests from NominalMale (0 ms total)
+
+[----------] 3 tests from NominalFemale
+[ RUN      ] NominalFemale.R5_FemaleAgeInsideYoungBand_AppliesFactor70
+/root/ee/mortgate/ee-mortgage/tests/nominal_test.cpp:72: Failure
+Expected equality of these values:
+  mortgage(Gender::Female, 25, kSalary)
+    Which is: 75000
+  70 * kSalary
+    Which is: 70000
+
+[  FAILED  ] NominalFemale.R5_FemaleAgeInsideYoungBand_AppliesFactor70 (0 ms)
+[ RUN      ] NominalFemale.R5_FemaleAgeInsideMiddleBand_AppliesFactor50
+[       OK ] NominalFemale.R5_FemaleAgeInsideMiddleBand_AppliesFactor50 (0 ms)
+[ RUN      ] NominalFemale.R5_FemaleAgeInsideSeniorBand_AppliesFactor35
+[       OK ] NominalFemale.R5_FemaleAgeInsideSeniorBand_AppliesFactor35 (0 ms)
+[----------] 3 tests from NominalFemale (0 ms total)
+
+[----------] 1 test from NominalArithmetic
+[ RUN      ] NominalArithmetic.R7_MortgageIsSalaryTimesApplicableFactor
+[       OK ] NominalArithmetic.R7_MortgageIsSalaryTimesApplicableFactor (0 ms)
+[----------] 1 test from NominalArithmetic (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 7 tests from 3 test suites ran. (0 ms total)
+[  PASSED  ] 5 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] NominalMale.R4_MaleAgeInsideMiddleBand_AppliesFactor55
+[  FAILED  ] NominalFemale.R5_FemaleAgeInsideYoungBand_AppliesFactor70
+
+ 2 FAILED TESTS
+[exit code: 1]
+
+$ ./build-buggy/boundary_test
+Running main() from /root/ee/mortgate/ee-mortgage/build-buggy/_deps/googletest-src/googletest/src/gtest_main.cc
+[==========] Running 19 tests from 4 test suites.
+[----------] Global test environment set-up.
+[----------] 6 tests from BoundaryMale
+[ RUN      ] BoundaryMale.R4_MaleAtLowerDomainEdge18_StillGetsFactor75
+/root/ee/mortgate/ee-mortgage/tests/boundary_test.cpp:50: Failure
+Expected equality of these values:
+  mortgage(Gender::Male, 18, kSalary)
+    Which is: 30000
+  75 * kSalary
+    Which is: 75000
+
+[  FAILED  ] BoundaryMale.R4_MaleAtLowerDomainEdge18_StillGetsFactor75 (0 ms)
+[ RUN      ] BoundaryMale.R4_MaleAtUpperEdgeOfYoungBand35_StillGetsFactor75
+/root/ee/mortgate/ee-mortgage/tests/boundary_test.cpp:60: Failure
+Expected equality of these values:
+  mortgage(Gender::Male, 35, kSalary)
+    Which is: 55000
+  75 * kSalary
+    Which is: 75000
+
+[  FAILED  ] BoundaryMale.R4_MaleAtUpperEdgeOfYoungBand35_StillGetsFactor75 (0 ms)
+[ RUN      ] BoundaryMale.R4_MaleJustInsideMiddleBandAt36_GetsFactor55
+[       OK ] BoundaryMale.R4_MaleJustInsideMiddleBandAt36_GetsFactor55 (0 ms)
+[ RUN      ] BoundaryMale.R4_MaleAtUpperEdgeOfMiddleBand45_StillGetsFactor55
+/root/ee/mortgate/ee-mortgage/tests/boundary_test.cpp:74: Failure
+Expected equality of these values:
+  mortgage(Gender::Male, 45, kSalary)
+    Which is: 30000
+  55 * kSalary
+    Which is: 55000
+
+[  FAILED  ] BoundaryMale.R4_MaleAtUpperEdgeOfMiddleBand45_StillGetsFactor55 (0 ms)
+[ RUN      ] BoundaryMale.R4_MaleJustInsideSeniorBandAt46_GetsFactor30
+[       OK ] BoundaryMale.R4_MaleJustInsideSeniorBandAt46_GetsFactor30 (0 ms)
+[ RUN      ] BoundaryMale.R4_MaleAtUpperDomainEdge55_GetsFactor30
+[       OK ] BoundaryMale.R4_MaleAtUpperDomainEdge55_GetsFactor30 (0 ms)
+[----------] 6 tests from BoundaryMale (0 ms total)
+
+[----------] 7 tests from BoundaryFemale
+[ RUN      ] BoundaryFemale.R5_FemaleAtLowerDomainEdge18_GetsFactor70
+/root/ee/mortgate/ee-mortgage/tests/boundary_test.cpp:98: Failure
+Expected equality of these values:
+  mortgage(Gender::Female, 18, kSalary)
+    Which is: 35000
+  70 * kSalary
+    Which is: 70000
+
+[  FAILED  ] BoundaryFemale.R5_FemaleAtLowerDomainEdge18_GetsFactor70 (0 ms)
+[ RUN      ] BoundaryFemale.R5_FemaleAtUpperEdgeOfYoungBand30_StillGetsFactor70
+/root/ee/mortgate/ee-mortgage/tests/boundary_test.cpp:108: Failure
+Expected equality of these values:
+  mortgage(Gender::Female, 30, kSalary)
+    Which is: 35000
+  70 * kSalary
+    Which is: 70000
+
+[  FAILED  ] BoundaryFemale.R5_FemaleAtUpperEdgeOfYoungBand30_StillGetsFactor70 (0 ms)
+[ RUN      ] BoundaryFemale.R5_FemaleAtLowerEdgeOfMiddleBand31_GetsFactor50
+/root/ee/mortgate/ee-mortgage/tests/boundary_test.cpp:113: Failure
+Expected equality of these values:
+  mortgage(Gender::Female, 31, kSalary)
+    Which is: 35000
+  50 * kSalary
+    Which is: 50000
+
+[  FAILED  ] BoundaryFemale.R5_FemaleAtLowerEdgeOfMiddleBand31_GetsFactor50 (0 ms)
+[ RUN      ] BoundaryFemale.R5_FemaleAtUpperEdgeOfMiddleBand40_StillGetsFactor50
+/root/ee/mortgate/ee-mortgage/tests/boundary_test.cpp:118: Failure
+Expected equality of these values:
+  mortgage(Gender::Female, 40, kSalary)
+    Which is: 35000
+  50 * kSalary
+    Which is: 50000
+
+[  FAILED  ] BoundaryFemale.R5_FemaleAtUpperEdgeOfMiddleBand40_StillGetsFactor50 (0 ms)
+[ RUN      ] BoundaryFemale.R5_FemaleAtLowerEdgeOfSeniorBand41_GetsFactor35
+[       OK ] BoundaryFemale.R5_FemaleAtLowerEdgeOfSeniorBand41_GetsFactor35 (0 ms)
+[ RUN      ] BoundaryFemale.R5_FemaleAtUpperEdgeOfSeniorBand50_GetsFactor35
+[       OK ] BoundaryFemale.R5_FemaleAtUpperEdgeOfSeniorBand50_GetsFactor35 (0 ms)
+[ RUN      ] BoundaryFemale.R5_FemaleAtFirstAgeOfUndefinedBand51_IsRejected
+/root/ee/mortgate/ee-mortgage/tests/boundary_test.cpp:144: Failure
+Expected: mortgage(Gender::Female, 51, kSalary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+
+[  FAILED  ] BoundaryFemale.R5_FemaleAtFirstAgeOfUndefinedBand51_IsRejected (0 ms)
+[----------] 7 tests from BoundaryFemale (0 ms total)
+
+[----------] 4 tests from BoundarySalary
+[ RUN      ] BoundarySalary.R3_SalaryAtLowerDomainEdgeZero_IsAcceptedAndYieldsZero
+[       OK ] BoundarySalary.R3_SalaryAtLowerDomainEdgeZero_IsAcceptedAndYieldsZero (0 ms)
+[ RUN      ] BoundarySalary.R3_SalaryJustAboveZero_IsAccepted
+[       OK ] BoundarySalary.R3_SalaryJustAboveZero_IsAccepted (0 ms)
+[ RUN      ] BoundarySalary.R3_SalaryAtUpperDomainEdge10000_IsAccepted
+[       OK ] BoundarySalary.R3_SalaryAtUpperDomainEdge10000_IsAccepted (0 ms)
+[ RUN      ] BoundarySalary.R3_SalaryJustBelowUpperEdge9999_IsAccepted
+[       OK ] BoundarySalary.R3_SalaryJustBelowUpperEdge9999_IsAccepted (0 ms)
+[----------] 4 tests from BoundarySalary (0 ms total)
+
+[----------] 2 tests from BoundaryAge
+[ RUN      ] BoundaryAge.R2_AgeJustBelowLowerDomainEdge17_IsRejected
+/root/ee/mortgate/ee-mortgage/tests/boundary_test.cpp:187: Failure
+Expected: mortgage(Gender::Male, 17, kSalary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+
+[  FAILED  ] BoundaryAge.R2_AgeJustBelowLowerDomainEdge17_IsRejected (0 ms)
+[ RUN      ] BoundaryAge.R2_AgeJustAboveUpperDomainEdge56_IsRejected
+/root/ee/mortgate/ee-mortgage/tests/boundary_test.cpp:192: Failure
+Expected: mortgage(Gender::Male, 56, kSalary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+
+[  FAILED  ] BoundaryAge.R2_AgeJustAboveUpperDomainEdge56_IsRejected (0 ms)
+[----------] 2 tests from BoundaryAge (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 19 tests from 4 test suites ran. (0 ms total)
+[  PASSED  ] 9 tests.
+[  FAILED  ] 10 tests, listed below:
+[  FAILED  ] BoundaryMale.R4_MaleAtLowerDomainEdge18_StillGetsFactor75
+[  FAILED  ] BoundaryMale.R4_MaleAtUpperEdgeOfYoungBand35_StillGetsFactor75
+[  FAILED  ] BoundaryMale.R4_MaleAtUpperEdgeOfMiddleBand45_StillGetsFactor55
+[  FAILED  ] BoundaryFemale.R5_FemaleAtLowerDomainEdge18_GetsFactor70
+[  FAILED  ] BoundaryFemale.R5_FemaleAtUpperEdgeOfYoungBand30_StillGetsFactor70
+[  FAILED  ] BoundaryFemale.R5_FemaleAtLowerEdgeOfMiddleBand31_GetsFactor50
+[  FAILED  ] BoundaryFemale.R5_FemaleAtUpperEdgeOfMiddleBand40_StillGetsFactor50
+[  FAILED  ] BoundaryFemale.R5_FemaleAtFirstAgeOfUndefinedBand51_IsRejected
+[  FAILED  ] BoundaryAge.R2_AgeJustBelowLowerDomainEdge17_IsRejected
+[  FAILED  ] BoundaryAge.R2_AgeJustAboveUpperDomainEdge56_IsRejected
+
+10 FAILED TESTS
+[exit code: 1]
+
+$ ./build-buggy/robustness_test
+Running main() from /root/ee/mortgate/ee-mortgage/build-buggy/_deps/googletest-src/googletest/src/gtest_main.cc
+[==========] Running 12 tests from 5 test suites.
+[----------] Global test environment set-up.
+[----------] 3 tests from RobustnessAge
+[ RUN      ] RobustnessAge.R2R6_AgeBelowMinimum_ThrowsOutOfRange
+/root/ee/mortgate/ee-mortgage/tests/robustness_test.cpp:87: Failure
+Expected: mortgage(Gender::Male, 17, kSalary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+
+/root/ee/mortgate/ee-mortgage/tests/robustness_test.cpp:88: Failure
+Expected: mortgage(Gender::Female, 17, kSalary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+
+[  FAILED  ] RobustnessAge.R2R6_AgeBelowMinimum_ThrowsOutOfRange (0 ms)
+[ RUN      ] RobustnessAge.R2R6_AgeAboveMaximum_ThrowsOutOfRange
+/root/ee/mortgate/ee-mortgage/tests/robustness_test.cpp:93: Failure
+Expected: mortgage(Gender::Male, 56, kSalary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+
+/root/ee/mortgate/ee-mortgage/tests/robustness_test.cpp:94: Failure
+Expected: mortgage(Gender::Female, 56, kSalary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+
+[  FAILED  ] RobustnessAge.R2R6_AgeAboveMaximum_ThrowsOutOfRange (0 ms)
+[ RUN      ] RobustnessAge.R2R6_GrosslyInvalidAges_ThrowOutOfRange
+/root/ee/mortgate/ee-mortgage/tests/robustness_test.cpp:108: Failure
+Expected: mortgage(Gender::Male, -1, kSalary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+
+/root/ee/mortgate/ee-mortgage/tests/robustness_test.cpp:109: Failure
+Expected: mortgage(Gender::Male, 0, kSalary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+
+/root/ee/mortgate/ee-mortgage/tests/robustness_test.cpp:110: Failure
+Expected: mortgage(Gender::Female, 0x7fffffff, kSalary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+
+/root/ee/mortgate/ee-mortgage/tests/robustness_test.cpp:111: Failure
+Expected: mortgage(Gender::Female, (-0x7fffffff - 1), kSalary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+
+[  FAILED  ] RobustnessAge.R2R6_GrosslyInvalidAges_ThrowOutOfRange (0 ms)
+[----------] 3 tests from RobustnessAge (0 ms total)
+
+[----------] 2 tests from RobustnessSalary
+[ RUN      ] RobustnessSalary.R3R6_NegativeSalary_ThrowsOutOfRange
+/root/ee/mortgate/ee-mortgage/tests/robustness_test.cpp:124: Failure
+Expected: mortgage(Gender::Male, kAge, -1) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+
+/root/ee/mortgate/ee-mortgage/tests/robustness_test.cpp:125: Failure
+Expected: mortgage(Gender::Female, kAge, -100000) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+
+[  FAILED  ] RobustnessSalary.R3R6_NegativeSalary_ThrowsOutOfRange (0 ms)
+[ RUN      ] RobustnessSalary.R3R6_SalaryAboveMaximum_ThrowsOutOfRange
+/root/ee/mortgate/ee-mortgage/tests/robustness_test.cpp:130: Failure
+Expected: mortgage(Gender::Male, kAge, 10001) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+
+/root/ee/mortgate/ee-mortgage/tests/robustness_test.cpp:131: Failure
+Expected: mortgage(Gender::Female, kAge, kAbsurdSalary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+
+[  FAILED  ] RobustnessSalary.R3R6_SalaryAboveMaximum_ThrowsOutOfRange (0 ms)
+[----------] 2 tests from RobustnessSalary (0 ms total)
+
+[----------] 2 tests from RobustnessSpecGap
+[ RUN      ] RobustnessSpecGap.R5R6_FemaleInUndefinedBand_ThrowsOutOfRange
+/root/ee/mortgate/ee-mortgage/tests/robustness_test.cpp:151: Failure
+Expected: mortgage(Gender::Female, age, kSalary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+woman aged 51 should be refused, not priced
+
+/root/ee/mortgate/ee-mortgage/tests/robustness_test.cpp:151: Failure
+Expected: mortgage(Gender::Female, age, kSalary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+woman aged 52 should be refused, not priced
+
+/root/ee/mortgate/ee-mortgage/tests/robustness_test.cpp:151: Failure
+Expected: mortgage(Gender::Female, age, kSalary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+woman aged 53 should be refused, not priced
+
+/root/ee/mortgate/ee-mortgage/tests/robustness_test.cpp:151: Failure
+Expected: mortgage(Gender::Female, age, kSalary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+woman aged 54 should be refused, not priced
+
+/root/ee/mortgate/ee-mortgage/tests/robustness_test.cpp:151: Failure
+Expected: mortgage(Gender::Female, age, kSalary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+woman aged 55 should be refused, not priced
+
+[  FAILED  ] RobustnessSpecGap.R5R6_FemaleInUndefinedBand_ThrowsOutOfRange (0 ms)
+[ RUN      ] RobustnessSpecGap.R5R6_MaleInSameAgeBandIsStillPriced
+[       OK ] RobustnessSpecGap.R5R6_MaleInSameAgeBandIsStillPriced (0 ms)
+[----------] 2 tests from RobustnessSpecGap (0 ms total)
+
+[----------] 1 test from RobustnessWorstCase
+[ RUN      ] RobustnessWorstCase.R6_AgeAndSalaryBothInvalid_ThrowsOutOfRange
+/root/ee/mortgate/ee-mortgage/tests/robustness_test.cpp:185: Failure
+Expected: mortgage(Gender::Male, 17, -1) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+
+/root/ee/mortgate/ee-mortgage/tests/robustness_test.cpp:186: Failure
+Expected: mortgage(Gender::Female, 99, 999999) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+
+[  FAILED  ] RobustnessWorstCase.R6_AgeAndSalaryBothInvalid_ThrowsOutOfRange (0 ms)
+[----------] 1 test from RobustnessWorstCase (0 ms total)
+
+[----------] 4 tests from RejectionReason
+[ RUN      ] RejectionReason.R2R6_AgeOutOfRangeSaysSo
+/root/ee/mortgate/ee-mortgage/tests/robustness_test.cpp:202: Failure
+Value of: mentions(reason, "age out of range")
+  Actual: false
+Expected: true
+got: 
+
+/root/ee/mortgate/ee-mortgage/tests/robustness_test.cpp:202: Failure
+Value of: mentions(reason, "age out of range")
+  Actual: false
+Expected: true
+got: 
+
+[  FAILED  ] RejectionReason.R2R6_AgeOutOfRangeSaysSo (0 ms)
+[ RUN      ] RejectionReason.R3R6_SalaryOutOfRangeSaysSo
+/root/ee/mortgate/ee-mortgage/tests/robustness_test.cpp:211: Failure
+Value of: mentions(reason, "salary out of range")
+  Actual: false
+Expected: true
+got: 
+
+/root/ee/mortgate/ee-mortgage/tests/robustness_test.cpp:211: Failure
+Value of: mentions(reason, "salary out of range")
+  Actual: false
+Expected: true
+got: 
+
+[  FAILED  ] RejectionReason.R3R6_SalaryOutOfRangeSaysSo (0 ms)
+[ RUN      ] RejectionReason.R5R6_SpecGapIsNotReportedAsAnOutOfRangeAge
+/root/ee/mortgate/ee-mortgage/tests/robustness_test.cpp:224: Failure
+Value of: mentions(reason, "specification")
+  Actual: false
+Expected: true
+got: 
+
+[  FAILED  ] RejectionReason.R5R6_SpecGapIsNotReportedAsAnOutOfRangeAge (0 ms)
+[ RUN      ] RejectionReason.R6_ValidInputProducesNoRejection
+[       OK ] RejectionReason.R6_ValidInputProducesNoRejection (0 ms)
+[----------] 4 tests from RejectionReason (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 12 tests from 5 test suites ran. (0 ms total)
+[  PASSED  ] 2 tests.
+[  FAILED  ] 10 tests, listed below:
+[  FAILED  ] RobustnessAge.R2R6_AgeBelowMinimum_ThrowsOutOfRange
+[  FAILED  ] RobustnessAge.R2R6_AgeAboveMaximum_ThrowsOutOfRange
+[  FAILED  ] RobustnessAge.R2R6_GrosslyInvalidAges_ThrowOutOfRange
+[  FAILED  ] RobustnessSalary.R3R6_NegativeSalary_ThrowsOutOfRange
+[  FAILED  ] RobustnessSalary.R3R6_SalaryAboveMaximum_ThrowsOutOfRange
+[  FAILED  ] RobustnessSpecGap.R5R6_FemaleInUndefinedBand_ThrowsOutOfRange
+[  FAILED  ] RobustnessWorstCase.R6_AgeAndSalaryBothInvalid_ThrowsOutOfRange
+[  FAILED  ] RejectionReason.R2R6_AgeOutOfRangeSaysSo
+[  FAILED  ] RejectionReason.R3R6_SalaryOutOfRangeSaysSo
+[  FAILED  ] RejectionReason.R5R6_SpecGapIsNotReportedAsAnOutOfRangeAge
+
+10 FAILED TESTS
+[exit code: 1]
+
+$ ./build-buggy/equivalence_test
+Running main() from /root/ee/mortgate/ee-mortgage/build-buggy/_deps/googletest-src/googletest/src/gtest_main.cc
+[==========] Running 5 tests from 5 test suites.
+[----------] Global test environment set-up.
+[----------] 1 test from WeakNormalEquivalence
+[ RUN      ] WeakNormalEquivalence.R4R5R7_OneCasePerValidAgeClassIndex
+[       OK ] WeakNormalEquivalence.R4R5R7_OneCasePerValidAgeClassIndex (0 ms)
+[----------] 1 test from WeakNormalEquivalence (0 ms total)
+
+[----------] 1 test from StrongNormalEquivalence
+[ RUN      ] StrongNormalEquivalence.R4R5R7_CartesianProductOfValidClasses
+/root/ee/mortgate/ee-mortgage/tests/equivalence_test.cpp:130: Failure
+Expected equality of these values:
+  mortgage(c.gender, c.age, c.salary)
+    Which is: 30000
+  c.expected
+    Which is: 55000
+G1 x A3 36-45 -> 55
+
+/root/ee/mortgate/ee-mortgage/tests/equivalence_test.cpp:130: Failure
+Expected equality of these values:
+  mortgage(c.gender, c.age, c.salary)
+    Which is: 75000
+  c.expected
+    Which is: 70000
+G2 x A2 18-30 -> 70
+
+[  FAILED  ] StrongNormalEquivalence.R4R5R7_CartesianProductOfValidClasses (0 ms)
+[----------] 1 test from StrongNormalEquivalence (0 ms total)
+
+[----------] 1 test from WeakRobustEquivalence
+[ RUN      ] WeakRobustEquivalence.R2R3R5R6_OneInvalidClassAtATime
+/root/ee/mortgate/ee-mortgage/tests/equivalence_test.cpp:154: Failure
+Expected: mortgage(c.gender, c.age, c.salary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+A1 men, under age
+
+/root/ee/mortgate/ee-mortgage/tests/equivalence_test.cpp:154: Failure
+Expected: mortgage(c.gender, c.age, c.salary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+A5 men, over age
+
+/root/ee/mortgate/ee-mortgage/tests/equivalence_test.cpp:154: Failure
+Expected: mortgage(c.gender, c.age, c.salary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+A5 women, the 51-55 spec gap
+
+/root/ee/mortgate/ee-mortgage/tests/equivalence_test.cpp:154: Failure
+Expected: mortgage(c.gender, c.age, c.salary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+S1, negative salary
+
+/root/ee/mortgate/ee-mortgage/tests/equivalence_test.cpp:154: Failure
+Expected: mortgage(c.gender, c.age, c.salary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+S3, salary over the cap
+
+[  FAILED  ] WeakRobustEquivalence.R2R3R5R6_OneInvalidClassAtATime (0 ms)
+[----------] 1 test from WeakRobustEquivalence (0 ms total)
+
+[----------] 1 test from StrongRobustEquivalence
+[ RUN      ] StrongRobustEquivalence.R6_CartesianProductIncludingInvalidClasses
+/root/ee/mortgate/ee-mortgage/tests/equivalence_test.cpp:185: Failure
+Expected: mortgage(c.gender, c.age, c.salary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+A1 men x S1
+
+/root/ee/mortgate/ee-mortgage/tests/equivalence_test.cpp:185: Failure
+Expected: mortgage(c.gender, c.age, c.salary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+A1 men x S3
+
+/root/ee/mortgate/ee-mortgage/tests/equivalence_test.cpp:185: Failure
+Expected: mortgage(c.gender, c.age, c.salary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+A5 men x S1
+
+/root/ee/mortgate/ee-mortgage/tests/equivalence_test.cpp:185: Failure
+Expected: mortgage(c.gender, c.age, c.salary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+A5 men x S3
+
+/root/ee/mortgate/ee-mortgage/tests/equivalence_test.cpp:185: Failure
+Expected: mortgage(c.gender, c.age, c.salary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+A1 women x S1
+
+/root/ee/mortgate/ee-mortgage/tests/equivalence_test.cpp:185: Failure
+Expected: mortgage(c.gender, c.age, c.salary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+A1 women x S3
+
+/root/ee/mortgate/ee-mortgage/tests/equivalence_test.cpp:185: Failure
+Expected: mortgage(c.gender, c.age, c.salary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+A5 women, spec gap x S1
+
+/root/ee/mortgate/ee-mortgage/tests/equivalence_test.cpp:185: Failure
+Expected: mortgage(c.gender, c.age, c.salary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+A5 women, spec gap x S3
+
+/root/ee/mortgate/ee-mortgage/tests/equivalence_test.cpp:185: Failure
+Expected: mortgage(c.gender, c.age, c.salary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+A6 women x S1
+
+/root/ee/mortgate/ee-mortgage/tests/equivalence_test.cpp:185: Failure
+Expected: mortgage(c.gender, c.age, c.salary) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+A6 women x S3
+
+[  FAILED  ] StrongRobustEquivalence.R6_CartesianProductIncludingInvalidClasses (0 ms)
+[----------] 1 test from StrongRobustEquivalence (0 ms total)
+
+[----------] 1 test from PartitionConsistency
+[ RUN      ] PartitionConsistency.R4R5_NoGapsOrOverlapsAcrossTheWholeAgeDomain
+/root/ee/mortgate/ee-mortgage/tests/equivalence_test.cpp:238: Failure
+Expected: (factor) <= (previous), actual: 75 vs 30
+factor went back up at man aged 19
+
+/root/ee/mortgate/ee-mortgage/tests/equivalence_test.cpp:238: Failure
+Expected: (factor) <= (previous), actual: 75 vs 35
+factor went back up at woman aged 19
+
+/root/ee/mortgate/ee-mortgage/tests/equivalence_test.cpp:238: Failure
+Expected: (factor) <= (previous), actual: 50 vs 35
+factor went back up at woman aged 32
+
+/root/ee/mortgate/ee-mortgage/tests/equivalence_test.cpp:229: Failure
+Expected: mortgage(g, age, 1) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+woman aged 51 falls in the spec gap
+
+/root/ee/mortgate/ee-mortgage/tests/equivalence_test.cpp:229: Failure
+Expected: mortgage(g, age, 1) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+woman aged 52 falls in the spec gap
+
+/root/ee/mortgate/ee-mortgage/tests/equivalence_test.cpp:229: Failure
+Expected: mortgage(g, age, 1) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+woman aged 53 falls in the spec gap
+
+/root/ee/mortgate/ee-mortgage/tests/equivalence_test.cpp:229: Failure
+Expected: mortgage(g, age, 1) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+woman aged 54 falls in the spec gap
+
+/root/ee/mortgate/ee-mortgage/tests/equivalence_test.cpp:229: Failure
+Expected: mortgage(g, age, 1) throws an exception of type std::out_of_range.
+  Actual: it throws nothing.
+woman aged 55 falls in the spec gap
+
+[  FAILED  ] PartitionConsistency.R4R5_NoGapsOrOverlapsAcrossTheWholeAgeDomain (0 ms)
+[----------] 1 test from PartitionConsistency (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 5 tests from 5 test suites ran. (0 ms total)
+[  PASSED  ] 1 test.
+[  FAILED  ] 4 tests, listed below:
+[  FAILED  ] StrongNormalEquivalence.R4R5R7_CartesianProductOfValidClasses
+[  FAILED  ] WeakRobustEquivalence.R2R3R5R6_OneInvalidClassAtATime
+[  FAILED  ] StrongRobustEquivalence.R6_CartesianProductIncludingInvalidClasses
+[  FAILED  ] PartitionConsistency.R4R5_NoGapsOrOverlapsAcrossTheWholeAgeDomain
+
+ 4 FAILED TESTS
+[exit code: 1]
+

@@ -64,6 +64,8 @@ requirements/
 tests/                      one file per technique
 docs/
   Apresentacao_FunctionalTesting_Project1_UTFPR.pptx  the class presentation (pt-BR)
+  run_correct.txt           full transcript: configure, build, ctest, each binary (GREEN)
+  run_buggy.txt             the same commands with -DUSE_BUGGY=ON (RED)
 tools/check_test_names.py   fails the build if the docs name a test that is gone
 .github/workflows/ci.yml
 ```
